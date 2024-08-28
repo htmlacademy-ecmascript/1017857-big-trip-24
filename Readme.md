@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Николай Новожилов](https://up.htmlacademy.ru/ecmascript/24/user/1017857).
-* Наставник: `Неизвестно`.
+* Наставник: [Евгений Лепёшкин](https://htmlacademy.ru/profile/spearance).
 
 ---
 

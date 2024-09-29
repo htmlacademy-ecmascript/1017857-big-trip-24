@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view';
 import { capitalizeFirstLetter, formatDate } from '../utilites/utils';
 
 function createPointTypeTemplate(type) {
@@ -100,28 +100,22 @@ function createEditPointTemplate(point, offers, destination, offersType, pointOf
   );
 }
 
-export default class EditPointView {
+export default class EditPointView extends AbstractView {
+  #point = null;
+  #offers = null;
+  #destination = null;
+  #offersType = null;
+  #pointOffers = null;
   constructor(currentPoint, availableOffers, currentDestination, offerTypes, pointOffers) {
-    this.point = currentPoint;
-    this.offers = availableOffers;
-    this.destination = currentDestination;
-    this.offersType = offerTypes;
-    this.pointOffers = pointOffers;
+    super();
+    this.#point = currentPoint;
+    this.#offers = availableOffers;
+    this.#destination = currentDestination;
+    this.#offersType = offerTypes;
+    this.#pointOffers = pointOffers;
   }
 
-  getTemplate() {
-    return createEditPointTemplate(this.point, this.offers, this.destination, this.offersType, this.pointOffers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createEditPointTemplate(this.#point, this.#offers, this.#destination, this.#offersType, this.#pointOffers);
   }
 }

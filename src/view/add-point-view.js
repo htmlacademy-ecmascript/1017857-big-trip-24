@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view';
 import { capitalizeFirstLetter } from '../utilites/utils';
 
 function createPointTypeTemplate(type) {
@@ -44,7 +44,7 @@ function createAddPointTemplate(point, offers, destination, offersType, pointOff
   const createTypeList = offersType.map((type) => createPointTypeTemplate(type)).join('');
   const createAvailableOfferList = offers.offers.map((offer) => createOfferTemplate(offer)).join('');
   const createDestinationList = availableDestinations.map((availableDestination) => createDestinationTemplate(availableDestination)).join('');
-  const creeatePictureList = destination.pictures.map((picture) => createPhotoTemplate(picture)).join('');
+  const createPictureList = destination.pictures.map((picture) => createPhotoTemplate(picture)).join('');
   return (
     `
       <li class="trip-events__item">
@@ -109,7 +109,7 @@ function createAddPointTemplate(point, offers, destination, offersType, pointOff
 
               <div class="event__photos-container">
                 <div class="event__photos-tape">
-                  ${creeatePictureList}
+                  ${createPictureList}
                 </div>
               </div>
             </section>
@@ -120,29 +120,24 @@ function createAddPointTemplate(point, offers, destination, offersType, pointOff
   );
 }
 
-export default class AddPointView {
+export default class AddPointView extends AbstractView {
+  #point = null;
+  #availableOffers = null;
+  #currentDestination = null;
+  #offerTypes = null;
+  #pointOffers = null;
+  #availableDestinations = null;
   constructor(currentPoint, availableOffers, currentDestination, offerTypes, pointOffers, availableDestinations) {
-    this.point = currentPoint;
-    this.availableOffers = availableOffers;
-    this.currentDestination = currentDestination;
-    this.offerTypes = offerTypes;
-    this.pointOffers = pointOffers;
-    this.availableDestinations = availableDestinations;
+    super();
+    this.#point = currentPoint;
+    this.#availableOffers = availableOffers;
+    this.#currentDestination = currentDestination;
+    this.#offerTypes = offerTypes;
+    this.#pointOffers = pointOffers;
+    this.#availableDestinations = availableDestinations;
   }
 
-  getTemplate() {
-    return createAddPointTemplate(this.point, this.availableOffers, this.currentDestination, this.offerTypes, this.pointOffers, this.availableDestinations);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createAddPointTemplate(this.#point, this.#availableOffers, this.#currentDestination, this.#offerTypes, this.#pointOffers, this.#availableDestinations);
   }
 }

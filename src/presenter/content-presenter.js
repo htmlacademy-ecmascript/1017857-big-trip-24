@@ -2,7 +2,7 @@ import TripSortView from '../view/trip-sort-view';
 import EditPointView from '../view/edit-point-view';
 import TripEventListView from '../view/event-list-view/trip-event-list-view';
 import TripEventItemView from '../view/event-list-view/trip-event-item-view';
-import { render } from '../render.js';
+import { render } from '../framework/render.js';
 import AddPointView from '../view/add-point-view';
 
 export default class ContentPresenter {
@@ -25,12 +25,12 @@ export default class ContentPresenter {
     const pointOffers = this.offersModel.getOffersById(currentPoint.type, currentPoint.offers);
 
     render(this.sortComponent, this.contentContainer);
-    render(new AddPointView(currentPoint, availableOffers, currentDestination, offerTypes, pointOffers, availableDestinations), this.tripListComponent.getElement());
-    render(new EditPointView(currentPoint, availableOffers, currentDestination, offerTypes, pointOffers), this.tripListComponent.getElement());
+    render(new AddPointView(currentPoint, availableOffers, currentDestination, offerTypes, pointOffers, availableDestinations), this.tripListComponent.element);
+    render(new EditPointView(currentPoint, availableOffers, currentDestination, offerTypes, pointOffers), this.tripListComponent.element);
     render(this.tripListComponent, this.contentContainer);
 
     for (let i = 0; i < this.pointsModel.points.length; i++) {
-      render(new TripEventItemView(this.pointsModel.points[i], this.destinationsModel.getDestinationsById(this.pointsModel.points[i].destination), this.offersModel.getOffersById(this.pointsModel.points[i].type, this.pointsModel.points[i].offers)), this.tripListComponent.getElement());
+      render(new TripEventItemView(this.pointsModel.points[i], this.destinationsModel.getDestinationsById(this.pointsModel.points[i].destination), this.offersModel.getOffersById(this.pointsModel.points[i].type, this.pointsModel.points[i].offers)), this.tripListComponent.element);
     }
   }
 }

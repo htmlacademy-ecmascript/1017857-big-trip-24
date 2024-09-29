@@ -1,4 +1,4 @@
-import { createElement } from '../../render.js';
+import AbstractView from '../../framework/view/abstract-view';
 import { humanizeDueDate, timeFromTo } from '../../utilites/utils';
 import { DATE_FORMAT } from '../../constants';
 
@@ -59,26 +59,18 @@ function createTripEventItemTemplate(point, destination, offers) {
   );
 }
 
-export default class TripEventItemView {
+export default class TripEventItemView extends AbstractView {
+  #point = null;
+  #destination = null;
+  #offers = [];
   constructor(point, destination, offers) {
-    this.point = point;
-    this.destination = destination;
-    this.offers = offers;
+    super();
+    this.#point = point;
+    this.#destination = destination;
+    this.#offers = offers;
   }
 
-  getTemplate() {
-    return createTripEventItemTemplate(this.point, this.destination, this.offers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createTripEventItemTemplate(this.#point, this.#destination, this.#offers);
   }
 }

@@ -10,8 +10,10 @@ function createTripInfoMain() {
   `;
 }
 
-export default class TripInfoMainView extends AbstractView {
+class TripInfoMainView extends AbstractView {
   get template() {
     return createTripInfoMain();
   }
 }
+
+export default TripInfoMainView;

@@ -59,7 +59,7 @@ function createTripEventItemTemplate(point, destination, offers) {
   );
 }
 
-export default class TripEventItemView extends AbstractView {
+class TripEventItemView extends AbstractView {
   #point = null;
   #destination = null;
   #offers = [];
@@ -74,3 +74,5 @@ export default class TripEventItemView extends AbstractView {
     return createTripEventItemTemplate(this.#point, this.#destination, this.#offers);
   }
 }
+
+export default TripEventItemView;

@@ -120,7 +120,7 @@ function createAddPointTemplate(point, offers, destination, offersType, pointOff
   );
 }
 
-export default class AddPointView extends AbstractView {
+class AddPointView extends AbstractView {
   #point = null;
   #availableOffers = null;
   #currentDestination = null;
@@ -141,3 +141,5 @@ export default class AddPointView extends AbstractView {
     return createAddPointTemplate(this.#point, this.#availableOffers, this.#currentDestination, this.#offerTypes, this.#pointOffers, this.#availableDestinations);
   }
 }
+
+export default AddPointView;

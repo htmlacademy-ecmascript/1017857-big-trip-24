@@ -100,7 +100,7 @@ function createEditPointTemplate(point, offers, destination, offersType, pointOf
   );
 }
 
-export default class EditPointView extends AbstractView {
+class EditPointView extends AbstractView {
   #point = null;
   #offers = null;
   #destination = null;
@@ -119,3 +119,5 @@ export default class EditPointView extends AbstractView {
     return createEditPointTemplate(this.#point, this.#offers, this.#destination, this.#offersType, this.#pointOffers);
   }
 }
+
+export default EditPointView;

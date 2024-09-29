@@ -1,12 +1,11 @@
 import { POINTS_COUNT } from '../constants.js';
 import { getRandomPointData } from '../mock/points-data';
 
-
 class PointsModel {
-  points = Array.from({ length: POINTS_COUNT }, getRandomPointData);
+  #points = Array.from({ length: POINTS_COUNT }, getRandomPointData);
 
-  getPoints() {
-    return this.points;
+  get points() {
+    return this.#points;
   }
 
   getPointById(id) {

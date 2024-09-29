@@ -4,8 +4,9 @@ function createTripInfo() {
   return ('<section class="trip-main__trip-info  trip-info"></section>');
 }
 
-export default class TripInfoView extends AbstractView {
+class TripInfoView extends AbstractView {
   get template() {
     return createTripInfo();
   }
 }
+export default TripInfoView;

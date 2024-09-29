@@ -33,8 +33,10 @@ function createTripSortTemplate() {
   );
 }
 
-export default class TripSortView extends AbstractView {
+class TripSortView extends AbstractView {
   get template() {
     return createTripSortTemplate();
   }
 }
+
+export default TripSortView;

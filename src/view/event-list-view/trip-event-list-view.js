@@ -8,8 +8,10 @@ function createTripEventListTemplate() {
   );
 }
 
-export default class TripEventListView extends AbstractView {
+class TripEventListView extends AbstractView {
   get template() {
     return createTripEventListTemplate();
   }
 }
+
+export default TripEventListView;

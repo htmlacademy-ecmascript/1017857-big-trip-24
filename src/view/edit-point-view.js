@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view';
 import { capitalizeFirstLetter, formatDate } from '../utilites/utils';
 
 function createPointTypeTemplate(type) {
@@ -100,28 +100,33 @@ function createEditPointTemplate(point, offers, destination, offersType, pointOf
   );
 }
 
-export default class EditPointView {
-  constructor(currentPoint, availableOffers, currentDestination, offerTypes, pointOffers) {
-    this.point = currentPoint;
-    this.offers = availableOffers;
-    this.destination = currentDestination;
-    this.offersType = offerTypes;
-    this.pointOffers = pointOffers;
+class EditPointView extends AbstractView {
+  #point = null;
+  #offers = null;
+  #destination = null;
+  #offersType = null;
+  #pointOffers = null;
+  #handleFormSubmit = null;
+  constructor(currentPoint, availableOffers, currentDestination, offerTypes, pointOffers, onFormSubmit) {
+    super();
+    this.#point = currentPoint;
+    this.#offers = availableOffers;
+    this.#destination = currentDestination;
+    this.#offersType = offerTypes;
+    this.#pointOffers = pointOffers;
+    this.#handleFormSubmit = onFormSubmit;
+    this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler);
   }
 
-  getTemplate() {
-    return createEditPointTemplate(this.point, this.offers, this.destination, this.offersType, this.pointOffers);
+  get template() {
+    return createEditPointTemplate(this.#point, this.#offers, this.#destination, this.#offersType, this.#pointOffers);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 }
+
+export default EditPointView;

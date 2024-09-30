@@ -1,14 +1,14 @@
 import { getOffersData } from '../mock/offers-data';
 
 class OffersModel {
-  offers = getOffersData();
+  #offers = getOffersData();
 
-  getOffers() {
-    return this.offers;
+  get offers() {
+    return this.#offers;
   }
 
   getOffersType() {
-    const availableOffers = this.getOffers();
+    const availableOffers = this.offers;
     const arrayTypeOffers = [];
     for (let i = 0; i < availableOffers.length; i++) {
       arrayTypeOffers.push(availableOffers[i].type);
@@ -17,7 +17,7 @@ class OffersModel {
   }
 
   getOffersByType(type) {
-    const availableOffers = this.getOffers();
+    const availableOffers = this.offers;
     return availableOffers.find((item) => item.type === type);
   }
 

@@ -1,4 +1,4 @@
-import { createElement } from '../../render.js';
+import AbstractView from '../../framework/view/abstract-view';
 import { humanizeDueDate, timeFromTo } from '../../utilites/utils';
 import { DATE_FORMAT } from '../../constants';
 
@@ -59,26 +59,28 @@ function createTripEventItemTemplate(point, destination, offers) {
   );
 }
 
-export default class TripEventItemView {
-  constructor(point, destination, offers) {
-    this.point = point;
-    this.destination = destination;
-    this.offers = offers;
+class TripEventItemView extends AbstractView {
+  #point = null;
+  #destination = null;
+  #offers = null;
+  #handleEditClick = null;
+  constructor(point, destination, offers, onEditClick) {
+    super();
+    this.#point = point;
+    this.#destination = destination;
+    this.#offers = offers;
+    this.#handleEditClick = onEditClick;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() {
-    return createTripEventItemTemplate(this.point, this.destination, this.offers);
+  get template() {
+    return createTripEventItemTemplate(this.#point, this.#destination, this.#offers);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 }
+
+export default TripEventItemView;

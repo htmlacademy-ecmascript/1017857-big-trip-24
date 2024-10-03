@@ -1,4 +1,4 @@
-import { render, replace } from '../framework/render';
+import { render, replace, remove } from '../framework/render';
 import TripEventItemView from '../view/event-list-view/trip-event-item-view';
 import EditPointView from '../view/edit-point-view';
 
@@ -17,7 +17,6 @@ class TripEventPresenter {
   #offerTypes = null;
   #pointOffers = null;
 
-  #tripEvent = null;
   constructor(
     tripListContainer
   ) {
@@ -44,6 +43,9 @@ class TripEventPresenter {
     this.#pointOffers = pointOffers;
     this.#currentDestination = currentDestination;
 
+    const prevTripEventComponent = this.#tripEventComponent;
+    const prevEditPointComponent = this.#editPointComponent;
+
     this.#tripEventComponent = new TripEventItemView(
       this.#point,
       this.#destination,
@@ -60,7 +62,26 @@ class TripEventPresenter {
       this.#onFormSubmit
     );
 
-    render(this.#tripEventComponent, this.#tripListContainer);
+    if (prevTripEventComponent === null || prevEditPointComponent === null) {
+      render(this.#tripEventComponent, this.#tripListContainer);
+      return;
+    }
+
+    if (this.#tripListContainer.contains(prevTripEventComponent.element)) {
+      replace(this.#tripEventComponent, prevTripEventComponent);
+    }
+
+    if (this.#tripListContainer.contains(prevEditPointComponent.element)) {
+      replace(this.#editPointComponent, prevEditPointComponent);
+    }
+
+    remove(prevTripEventComponent);
+    remove(prevEditPointComponent);
+  }
+
+  destroy() {
+    remove(this.#tripEventComponent);
+    remove(this.#editPointComponent);
   }
 
   #escKeyDownHandler = (evt) => {

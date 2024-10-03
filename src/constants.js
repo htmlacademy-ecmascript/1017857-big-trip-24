@@ -10,7 +10,24 @@ const DATE_FORMAT = {
   INPUT_DATE_FORMAT: 'DD/MM/YY HH:mm',
 };
 
+const SortingType = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFERS: 'offers',
+};
+
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past'
+};
+
+const EnabledSortingTypes = [SortingType.DAY, SortingType.TIME, SortingType.PRICE];
+
 const HOURS = 24;
 const MINUTES = 60;
 
-export { POINTS_COUNT, DATE_FORMAT, HOURS, MINUTES };
+export { POINTS_COUNT, DATE_FORMAT, HOURS, MINUTES, EnabledSortingTypes, SortingType, FilterType };

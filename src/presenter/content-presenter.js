@@ -10,8 +10,10 @@ class ContentPresenter {
   #pointsModel = null;
   #offersModel = null;
   #destinationsModel = null;
+
   #sortComponent = new TripSortView();
   #tripListComponent = new TripEventListView();
+  #emptyListComponent = new ListEmptyView();
 
   constructor(contentContainer, pointsModel, offersModel, destinationsModel) {
     this.#contentContainer = contentContainer;
@@ -73,14 +75,20 @@ class ContentPresenter {
     render(tripEventComponent, this.#tripListComponent.element);
   }
 
-  #renderContent() {
-    if (this.#pointsModel.length === 0) {
-      render(new ListEmptyView(), this.#contentContainer);
-      return;
-    }
-    render(this.#sortComponent, this.#contentContainer);
-    render(this.#tripListComponent, this.#contentContainer);
+  init() {
+    this.#renderContent();
+  }
 
+  #renderEmptyList() {
+    render(this.#emptyListComponent, this.#contentContainer);
+  }
+
+  #renderSort() {
+    render(this.#sortComponent, this.#contentContainer);
+  }
+
+  #renderTripEventList() {
+    render(this.#tripListComponent, this.#contentContainer);
     for (let i = 0; i < this.#pointsModel.points.length; i++) {
       const currentPoint = this.#pointsModel.getPointById(this.#pointsModel.points[i].id);
       this.#renderTripEventItem(
@@ -96,8 +104,14 @@ class ContentPresenter {
     }
   }
 
-  init() {
-    this.#renderContent();
+  #renderContent() {
+    // console.log(this.#pointsModel.points.length)
+    if (this.#pointsModel.points.length === 0) {
+      this.#renderEmptyList();
+      return;
+    }
+    this.#renderSort();
+    this.#renderTripEventList();
   }
 }
 

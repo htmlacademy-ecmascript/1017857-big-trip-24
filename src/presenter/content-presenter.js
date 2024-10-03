@@ -1,9 +1,8 @@
 import TripSortView from '../view/trip-sort-view';
-import EditPointView from '../view/edit-point-view';
 import TripEventListView from '../view/event-list-view/trip-event-list-view';
-import TripEventItemView from '../view/event-list-view/trip-event-item-view';
 import ListEmptyView from '../view/list-empty-view';
-import { render, replace } from '../framework/render.js';
+import { render } from '../framework/render.js';
+import TripEventPresenter from './trip-event-presenter';
 
 class ContentPresenter {
   #contentContainer = null;
@@ -32,47 +31,19 @@ class ContentPresenter {
     offerTypes,
     pointOffers
   ) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFormToCard();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const onEditClick = () => {
-      replaceCardToForm();
-      document.addEventListener('keydown', escKeyDownHandler);
-    };
-
-    const onFormSubmit = () => {
-      replaceFormToCard();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    };
-
-    const tripEventComponent = new TripEventItemView(
+    const tripEventPresenter = new TripEventPresenter(
+      this.#tripListComponent.element
+    );
+    tripEventPresenter.init(
       point,
       destination,
       offers,
-      onEditClick
-    );
-    const editPointComponent = new EditPointView(
       currentPoint,
       availableOffers,
       currentDestination,
       offerTypes,
-      pointOffers,
-      onFormSubmit
+      pointOffers
     );
-
-    function replaceCardToForm() {
-      replace(editPointComponent, tripEventComponent);
-    }
-
-    function replaceFormToCard() {
-      replace(tripEventComponent, editPointComponent);
-    }
-    render(tripEventComponent, this.#tripListComponent.element);
   }
 
   init() {
@@ -105,7 +76,6 @@ class ContentPresenter {
   }
 
   #renderContent() {
-    // console.log(this.#pointsModel.points.length)
     if (this.#pointsModel.points.length === 0) {
       this.#renderEmptyList();
       return;

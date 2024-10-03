@@ -2,6 +2,7 @@ import TripSortView from '../view/trip-sort-view';
 import EditPointView from '../view/edit-point-view';
 import TripEventListView from '../view/event-list-view/trip-event-list-view';
 import TripEventItemView from '../view/event-list-view/trip-event-item-view';
+import ListEmptyView from '../view/list-empty-view';
 import { render, replace } from '../framework/render.js';
 
 class ContentPresenter {
@@ -72,7 +73,11 @@ class ContentPresenter {
     render(tripEventComponent, this.#tripListComponent.element);
   }
 
-  init() {
+  #renderContent() {
+    if (this.#pointsModel.length === 0) {
+      render(new ListEmptyView(), this.#contentContainer);
+      return;
+    }
     render(this.#sortComponent, this.#contentContainer);
     render(this.#tripListComponent, this.#contentContainer);
 
@@ -89,6 +94,10 @@ class ContentPresenter {
         this.#offersModel.getOffersById(currentPoint.type, currentPoint.offers)
       );
     }
+  }
+
+  init() {
+    this.#renderContent();
   }
 }
 

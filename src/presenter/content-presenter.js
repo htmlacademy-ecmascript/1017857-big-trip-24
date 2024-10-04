@@ -3,6 +3,7 @@ import TripEventListView from '../view/event-list-view/trip-event-list-view';
 import ListEmptyView from '../view/list-empty-view';
 import { render } from '../framework/render.js';
 import TripEventPresenter from './trip-event-presenter';
+import { updateItem } from '../utilites/common';
 
 class ContentPresenter {
   #contentContainer = null;
@@ -13,12 +14,19 @@ class ContentPresenter {
   #sortComponent = new TripSortView();
   #tripListComponent = new TripEventListView();
   #emptyListComponent = new ListEmptyView();
+  #tripEventPresenters = new Map();
+  #pointEvents = [];
 
   constructor(contentContainer, pointsModel, offersModel, destinationsModel) {
     this.#contentContainer = contentContainer;
     this.#pointsModel = pointsModel;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
+  }
+
+  init() {
+    this.#pointEvents = [...this.#pointsModel.points];
+    this.#renderContent();
   }
 
   #renderTripEventItem(
@@ -32,7 +40,9 @@ class ContentPresenter {
     pointOffers
   ) {
     const tripEventPresenter = new TripEventPresenter(
-      this.#tripListComponent.element
+      this.#tripListComponent.element,
+      this.#handlePointEventChange,
+      this.#handleModeChange
     );
     tripEventPresenter.init(
       point,
@@ -44,10 +54,7 @@ class ContentPresenter {
       offerTypes,
       pointOffers
     );
-  }
-
-  init() {
-    this.#renderContent();
+    this.#tripEventPresenters.set(point.id, tripEventPresenter);
   }
 
   #renderEmptyList() {
@@ -60,29 +67,51 @@ class ContentPresenter {
 
   #renderTripEventList() {
     render(this.#tripListComponent, this.#contentContainer);
-    for (let i = 0; i < this.#pointsModel.points.length; i++) {
-      const currentPoint = this.#pointsModel.getPointById(this.#pointsModel.points[i].id);
+    for (let i = 0; i < this.#pointEvents.length; i++) {
       this.#renderTripEventItem(
-        this.#pointsModel.points[i],
-        this.#destinationsModel.getDestinationsById(this.#pointsModel.points[i].destination),
-        this.#offersModel.getOffersById(this.#pointsModel.points[i].type, this.#pointsModel.points[i].offers),
-        currentPoint,
-        this.#offersModel.getOffersByType(currentPoint.type),
-        this.#destinationsModel.getDestinationsById(currentPoint.destination),
+        this.#pointEvents[i],
+        this.#destinationsModel.getDestinationsById(this.#pointEvents[i].destination),
+        this.#offersModel.getOffersById(this.#pointEvents[i].type, this.#pointEvents[i].offers),
+        this.#pointEvents[i].id,
+        this.#offersModel.getOffersByType(this.#pointEvents[i].type),
+        this.#destinationsModel.getDestinationsById(this.#pointEvents[i].destination),
         this.#offersModel.getOffersType(),
-        this.#offersModel.getOffersById(currentPoint.type, currentPoint.offers)
+        this.#offersModel.getOffersById(this.#pointEvents[i].type, this.#pointEvents[i].offers)
       );
     }
   }
 
   #renderContent() {
-    if (this.#pointsModel.points.length === 0) {
+    if (this.#pointEvents.length === 0) {
       this.#renderEmptyList();
       return;
     }
     this.#renderSort();
     this.#renderTripEventList();
   }
+
+  #clearTripEventList() {
+    this.#tripEventPresenters.forEach((presenter) => presenter.destroy());
+    this.#tripEventPresenters.clear();
+  }
+
+  #handlePointEventChange = (updatedPoint) => {
+    this.#pointEvents = updateItem(this.#pointEvents, updatedPoint);
+    this.#tripEventPresenters.get(updatedPoint.id).init(
+      updatedPoint,
+      this.#destinationsModel.getDestinationsById(updatedPoint.destination),
+      this.#offersModel.getOffersById(updatedPoint.type, updatedPoint.offers),
+      updatedPoint.id,
+      this.#offersModel.getOffersByType(updatedPoint.type),
+      this.#destinationsModel.getDestinationsById(updatedPoint.destination),
+      this.#offersModel.getOffersType(),
+      this.#offersModel.getOffersById(updatedPoint.type, updatedPoint.offers)
+    );
+  };
+
+  #handleModeChange = () => {
+    this.#tripEventPresenters.forEach((presenter) => presenter.resetView());
+  };
 }
 
 export default ContentPresenter;

@@ -2,11 +2,18 @@ import { render, replace, remove } from '../framework/render';
 import TripEventItemView from '../view/event-list-view/trip-event-item-view';
 import EditPointView from '../view/edit-point-view';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 class TripEventPresenter {
   #tripListContainer = null;
 
   #tripEventComponent = null;
   #editPointComponent = null;
+  #handleDataChange = null;
+  #handleModeChange = null;
 
   #point = null;
   #destination = null;
@@ -16,11 +23,16 @@ class TripEventPresenter {
   #currentDestination = null;
   #offerTypes = null;
   #pointOffers = null;
+  #mode = Mode.DEFAULT;
 
   constructor(
-    tripListContainer
+    tripListContainer,
+    onDataChange,
+    onModeChange
   ) {
     this.#tripListContainer = tripListContainer;
+    this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init(
@@ -50,7 +62,8 @@ class TripEventPresenter {
       this.#point,
       this.#destination,
       this.#offers,
-      this.#onEditClick
+      this.#onEditClick,
+      this.#handleFavoriteClick
     );
 
     this.#editPointComponent = new EditPointView(
@@ -67,11 +80,11 @@ class TripEventPresenter {
       return;
     }
 
-    if (this.#tripListContainer.contains(prevTripEventComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#tripEventComponent, prevTripEventComponent);
     }
 
-    if (this.#tripListContainer.contains(prevEditPointComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#editPointComponent, prevEditPointComponent);
     }
 
@@ -82,6 +95,12 @@ class TripEventPresenter {
   destroy() {
     remove(this.#tripEventComponent);
     remove(this.#editPointComponent);
+  }
+
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToCard();
+    }
   }
 
   #escKeyDownHandler = (evt) => {
@@ -102,12 +121,21 @@ class TripEventPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
+  #handleFavoriteClick = () => {
+    this.#handleDataChange({ ...this.#point, 'is_favorite': !this.#point.is_favorite });
+  };
+
   #replaceCardToForm() {
     replace(this.#editPointComponent, this.#tripEventComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
   }
 
   #replaceFormToCard() {
     replace(this.#tripEventComponent, this.#editPointComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
   }
 }
 

@@ -32,12 +32,7 @@ class ContentPresenter {
   #renderTripEventItem(
     point,
     destination,
-    offers,
-    currentPoint,
-    availableOffers,
-    currentDestination,
-    offerTypes,
-    pointOffers
+    offers
   ) {
     const tripEventPresenter = new TripEventPresenter(
       this.#tripListComponent.element,
@@ -47,12 +42,7 @@ class ContentPresenter {
     tripEventPresenter.init(
       point,
       destination,
-      offers,
-      currentPoint,
-      availableOffers,
-      currentDestination,
-      offerTypes,
-      pointOffers
+      offers
     );
     this.#tripEventPresenters.set(point.id, tripEventPresenter);
   }
@@ -70,13 +60,8 @@ class ContentPresenter {
     for (let i = 0; i < this.#pointEvents.length; i++) {
       this.#renderTripEventItem(
         this.#pointEvents[i],
-        this.#destinationsModel.getDestinationsById(this.#pointEvents[i].destination),
-        this.#offersModel.getOffersById(this.#pointEvents[i].type, this.#pointEvents[i].offers),
-        this.#pointEvents[i].id,
-        this.#offersModel.getOffersByType(this.#pointEvents[i].type),
-        this.#destinationsModel.getDestinationsById(this.#pointEvents[i].destination),
-        this.#offersModel.getOffersType(),
-        this.#offersModel.getOffersById(this.#pointEvents[i].type, this.#pointEvents[i].offers)
+        this.#destinationsModel,
+        this.#offersModel
       );
     }
   }
@@ -99,13 +84,8 @@ class ContentPresenter {
     this.#pointEvents = updateItem(this.#pointEvents, updatedPoint);
     this.#tripEventPresenters.get(updatedPoint.id).init(
       updatedPoint,
-      this.#destinationsModel.getDestinationsById(updatedPoint.destination),
-      this.#offersModel.getOffersById(updatedPoint.type, updatedPoint.offers),
-      updatedPoint.id,
-      this.#offersModel.getOffersByType(updatedPoint.type),
-      this.#destinationsModel.getDestinationsById(updatedPoint.destination),
-      this.#offersModel.getOffersType(),
-      this.#offersModel.getOffersById(updatedPoint.type, updatedPoint.offers)
+      this.#destinationsModel,
+      this.#offersModel
     );
   };
 

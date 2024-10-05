@@ -1,8 +1,8 @@
 import { getRandomElement } from '../utilites/utils';
+import { nanoid } from 'nanoid';
 
 const pointsData = [
   {
-    'id': 'f4b62099-293f-4c3d-a702-94eec4a2808c',
     'base_price': 1500,
     'date_from': '2024-10-20T22:55:56.845Z',
     'date_to': '2024-10-22T09:22:13.375Z',
@@ -16,7 +16,6 @@ const pointsData = [
     'type': 'taxi'
   },
   {
-    'id': 'd6otwpfi-w00j-br24-gs09-0wokw16253hm',
     'base_price': 2100,
     'date_from': '2024-09-13T10:55:56.845Z',
     'date_to': '2024-09-30T11:22:13.375Z',
@@ -30,7 +29,6 @@ const pointsData = [
     'type': 'train'
   },
   {
-    'id': 'oc6dn15l-vq8b-naj7-etpa-p5w8afyjnurb',
     'base_price': 1800,
     'date_from': '2019-07-10T06:55:56.845Z',
     'date_to': '2019-07-11T05:22:13.375Z',
@@ -42,7 +40,6 @@ const pointsData = [
     'type': 'bus'
   },
   {
-    'id': '4gdo5lf4-piyc-nknw-noid-ckfgf62hqh1v',
     'base_price': 2800,
     'date_from': '2024-11-10T06:55:56.845Z',
     'date_to': '2024-11-11T05:22:13.375Z',
@@ -55,7 +52,6 @@ const pointsData = [
     'type': 'flight'
   },
   {
-    'id': 'hmlriiy2-k34j-jwe8-c2w2-pzrz9enzpt2n',
     'base_price': 2200,
     'date_from': '2024-11-23T06:55:56.845Z',
     'date_to': '2024-11-25T05:22:13.375Z',
@@ -65,7 +61,6 @@ const pointsData = [
     'type': 'check-in'
   },
   {
-    'id': '12wudjl3-dc7d-4ken-3g26-yd8rrocz85m6',
     'base_price': 3200,
     'date_from': '2024-12-23T06:55:56.845Z',
     'date_to': '2024-12-25T05:22:13.375Z',
@@ -81,6 +76,9 @@ const pointsData = [
   }
 ];
 
-const getRandomPointData = () => getRandomElement(pointsData);
+const getRandomPointData = () => ({
+  id: nanoid(),
+  ...getRandomElement(pointsData)
+});
 
 export { getRandomPointData };

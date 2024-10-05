@@ -38,22 +38,17 @@ class TripEventPresenter {
   init(
     point,
     destination,
-    offers,
-    currentPoint,
-    availableOffers,
-    currentDestination,
-    offerTypes,
-    pointOffers
+    offers
   ) {
     this.#point = point;
-    this.#destination = destination;
-    this.#offers = offers;
-    this.#currentPoint = currentPoint;
-    this.#availableOffers = availableOffers;
-    this.#currentDestination = currentDestination;
-    this.#offerTypes = offerTypes;
-    this.#pointOffers = pointOffers;
-    this.#currentDestination = currentDestination;
+    this.#destination = destination.getDestinationsById(this.#point.destination);
+    this.#offers = offers.getOffersById(this.#point.type, this.#point.offers);
+    this.#currentPoint = point.id;
+    this.#availableOffers = offers.getOffersByType(this.#point.type);
+    this.#currentDestination = destination.getDestinationsById(this.#point.destination);
+    this.#offerTypes = offers.getOffersType();
+    this.#pointOffers = offers.getOffersById(this.#point.type, this.#point.offers);
+
 
     const prevTripEventComponent = this.#tripEventComponent;
     const prevEditPointComponent = this.#editPointComponent;

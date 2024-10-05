@@ -75,11 +75,6 @@ class ContentPresenter {
     this.#renderTripEventList();
   }
 
-  #clearTripEventList() {
-    this.#tripEventPresenters.forEach((presenter) => presenter.destroy());
-    this.#tripEventPresenters.clear();
-  }
-
   #handlePointEventChange = (updatedPoint) => {
     this.#pointEvents = updateItem(this.#pointEvents, updatedPoint);
     this.#tripEventPresenters.get(updatedPoint.id).init(

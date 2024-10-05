@@ -62,7 +62,7 @@ class TripEventPresenter {
     );
 
     this.#editPointComponent = new EditPointView(
-      this.#currentPoint,
+      this.#point,
       this.#availableOffers,
       this.#currentDestination,
       this.#offerTypes,

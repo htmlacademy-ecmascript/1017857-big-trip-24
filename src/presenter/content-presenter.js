@@ -4,8 +4,8 @@ import ListEmptyView from '../view/list-empty-view';
 import { render } from '../framework/render.js';
 import TripEventPresenter from './trip-event-presenter';
 import { updateItem } from '../utilites/common';
-import {SortingType} from "../constants";
-import {sortPointEventsByDate, sortPointEventsByPrice, sortPointEventsByTime} from "../utilites/point";
+import { SortingType } from '../constants';
+import { sortPointEventsByPrice, sortPointEventsByTime } from '../utilites/point';
 
 class ContentPresenter {
   #contentContainer = null;

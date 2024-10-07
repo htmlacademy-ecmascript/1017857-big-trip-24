@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import {getDurationEvent, timeFromTo} from "./utils";
+import { getDurationEvent } from './utils';
 
 function checkPointIsFuture(point) {
   return point.date_from && dayjs().isBefore(point.date_from, 'day');

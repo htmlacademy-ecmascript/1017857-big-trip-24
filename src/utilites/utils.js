@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import {HOURS, MINUTES} from '../constants';
+import { HOURS, MINUTES } from '../constants';
 
 function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];

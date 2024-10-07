@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { HOURS, MINUTES } from '../constants';
+import {HOURS, MINUTES} from '../constants';
 
 function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -13,6 +13,10 @@ function getRandomPositiveInteger(min, max) {
 
 function formatDate(date, format) {
   return dayjs(date).format(format);
+}
+
+function getDurationEvent(dateFrom, dateTo) {
+  return dayjs(dateTo).diff(dateFrom, 'minutes');
 }
 
 function timeFromTo(dateFrom, dateTo) {
@@ -35,4 +39,4 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export { getRandomElement, getRandomPositiveInteger, formatDate, timeFromTo, humanizeDueDate, capitalizeFirstLetter };
+export { getRandomElement, getRandomPositiveInteger, formatDate, timeFromTo, humanizeDueDate, capitalizeFirstLetter, getDurationEvent };

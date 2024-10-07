@@ -11,7 +11,7 @@ const DATE_FORMAT = {
 };
 
 const SortingType = {
-  DAY: 'day',
+  DEFAULT: 'day',
   EVENT: 'event',
   TIME: 'time',
   PRICE: 'price',
@@ -25,9 +25,9 @@ const FilterType = {
   PAST: 'past'
 };
 
-const EnabledSortingTypes = [SortingType.DAY, SortingType.TIME, SortingType.PRICE];
+// const EnabledSortingTypes = [SortingType.DAY, SortingType.TIME, SortingType.PRICE];
 
 const HOURS = 24;
 const MINUTES = 60;
 
-export { POINTS_COUNT, DATE_FORMAT, HOURS, MINUTES, EnabledSortingTypes, SortingType, FilterType };
+export { POINTS_COUNT, DATE_FORMAT, HOURS, MINUTES, SortingType, FilterType };

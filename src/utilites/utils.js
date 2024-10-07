@@ -15,6 +15,10 @@ function formatDate(date, format) {
   return dayjs(date).format(format);
 }
 
+function getDurationEvent(dateFrom, dateTo) {
+  return dayjs(dateTo).diff(dateFrom, 'minutes');
+}
+
 function timeFromTo(dateFrom, dateTo) {
   const time = dayjs(dateTo).diff(dateFrom, 'minutes');
   const days = Math.trunc(time / (MINUTES * HOURS));
@@ -35,4 +39,4 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export { getRandomElement, getRandomPositiveInteger, formatDate, timeFromTo, humanizeDueDate, capitalizeFirstLetter };
+export { getRandomElement, getRandomPositiveInteger, formatDate, timeFromTo, humanizeDueDate, capitalizeFirstLetter, getDurationEvent };

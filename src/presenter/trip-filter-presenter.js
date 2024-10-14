@@ -3,7 +3,6 @@ import TripFilterView from '../view/trip-filter-view';
 
 class TripFilterPresenter {
   #tripFilterContainer = null;
-  // #tripFilterViewComponent = new TripFilterView();
   #filters = null;
 
   constructor(tripFilterContainer, filters) {

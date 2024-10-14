@@ -119,7 +119,6 @@ class ContentPresenter {
     this.#sortPointEvents(sortType);
     this.#clearTripEventList();
     this.#renderTripEventList();
-
   };
 }
 

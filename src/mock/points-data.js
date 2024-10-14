@@ -4,8 +4,8 @@ import { nanoid } from 'nanoid';
 const pointsData = [
   {
     'base_price': 1500,
-    'date_from': '2024-10-20T22:55:56.845Z',
-    'date_to': '2024-10-22T09:22:13.375Z',
+    'dateFrom': '2024-10-20T22:55:56.845Z',
+    'dateTo': '2024-10-22T09:22:13.375Z',
     'destination': 'cfe416cq-10xa-ye10-8077-2fs9a01edcab',
     'is_favorite': false,
     'offers': [
@@ -17,8 +17,8 @@ const pointsData = [
   },
   {
     'base_price': 2100,
-    'date_from': '2024-09-13T10:55:56.845Z',
-    'date_to': '2024-09-30T11:22:13.375Z',
+    'dateFrom': '2024-09-13T10:55:56.845Z',
+    'dateTo': '2024-09-30T11:22:13.375Z',
     'destination': 'qthxu1kk-fzd9-0te7-9r3g-j0onvu7uzvqr',
     'is_favorite': true,
     'offers': [
@@ -30,8 +30,8 @@ const pointsData = [
   },
   {
     'base_price': 1800,
-    'date_from': '2019-07-10T06:55:56.845Z',
-    'date_to': '2019-07-11T05:22:13.375Z',
+    'dateFrom': '2019-07-10T06:55:56.845Z',
+    'dateTo': '2019-07-11T05:22:13.375Z',
     'destination': 'ik84hyo8-mki7-szaa-fvqt-ed3f1lz3o8cz',
     'is_favorite': false,
     'offers': [
@@ -41,8 +41,8 @@ const pointsData = [
   },
   {
     'base_price': 2800,
-    'date_from': '2024-11-10T06:55:56.845Z',
-    'date_to': '2024-11-11T05:22:13.375Z',
+    'dateFrom': '2024-11-10T06:55:56.845Z',
+    'dateTo': '2024-11-11T05:22:13.375Z',
     'destination': 'qthxu1kk-fzd9-0te7-9r3g-j0onvu7uzvqr',
     'is_favorite': true,
     'offers': [
@@ -53,8 +53,8 @@ const pointsData = [
   },
   {
     'base_price': 2200,
-    'date_from': '2024-11-23T06:55:56.845Z',
-    'date_to': '2024-11-25T05:22:13.375Z',
+    'dateFrom': '2024-11-23T06:55:56.845Z',
+    'dateTo': '2024-11-25T05:22:13.375Z',
     'destination': 'heqqq4fm-oolb-6tgl-1xwe-hhutu0ah1r6k',
     'is_favorite': true,
     'offers': [],
@@ -62,8 +62,8 @@ const pointsData = [
   },
   {
     'base_price': 3200,
-    'date_from': '2024-12-23T06:55:56.845Z',
-    'date_to': '2024-12-25T05:22:13.375Z',
+    'dateFrom': '2024-12-23T06:55:56.845Z',
+    'dateTo': '2024-12-25T05:22:13.375Z',
     'destination': 'ik84hyo8-mki7-szaa-fvqt-ed3f1lz3o8cz',
     'is_favorite': true,
     'offers': [

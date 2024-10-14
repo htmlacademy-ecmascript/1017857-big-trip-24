@@ -60,16 +60,16 @@ function createTripEventItemTemplate(point, destination, offers) {
 }
 
 class TripEventItemView extends AbstractView {
-  #point = null;
-  #destination = null;
-  #offers = null;
+  #pointModel = null;
+  #destinationModel = null;
+  #offersModel = null;
   #handleEditClick = null;
   #handleFavoriteClick = null;
-  constructor(point, destination, offers, onEditClick, onFavoriteClick) {
+  constructor(pointModel, destinationModel, offersModel, onEditClick, onFavoriteClick) {
     super();
-    this.#point = point;
-    this.#destination = destination;
-    this.#offers = offers;
+    this.#pointModel = pointModel;
+    this.#destinationModel = destinationModel;
+    this.#offersModel = offersModel;
     this.#handleEditClick = onEditClick;
     this.#handleFavoriteClick = onFavoriteClick;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
@@ -77,7 +77,7 @@ class TripEventItemView extends AbstractView {
   }
 
   get template() {
-    return createTripEventItemTemplate(this.#point, this.#destination, this.#offers);
+    return createTripEventItemTemplate(this.#pointModel, this.#destinationModel.getDestinationsById(this.#pointModel.destination), this.#offersModel.getOffersById(this.#pointModel.type, this.#pointModel.offers));
   }
 
   #editClickHandler = (evt) => {

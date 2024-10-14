@@ -1,5 +1,5 @@
-import AbstractView from '../framework/view/abstract-view';
 import { capitalizeFirstLetter, formatDate } from '../utilites/utils';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 
 function createPointTypeTemplate(type) {
   return (`
@@ -7,6 +7,12 @@ function createPointTypeTemplate(type) {
       <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalizeFirstLetter(type)}</label>
     </div>
+  `);
+}
+
+function createDestinationTemplate(destination) {
+  return (`
+    <option value="${destination}"></option>
   `);
 }
 
@@ -25,9 +31,18 @@ function createOfferTemplate(offer, pointOffers) {
   `);
 }
 
-function createEditPointTemplate(point, offers, destination, offersType, pointOffers) {
-  const createTypeList = offersType.map((type) => createPointTypeTemplate(type)).join('');
-  const createOfferList = offers.offers.map((offer) => createOfferTemplate(offer, pointOffers)).join('');
+function createEditPointTemplate(state) {
+  const pointEvent = state.point;
+  const destinations = state.destinations;
+  const currentDestination = state.currentDestination;
+  const offerTypes = state.offerTypes;
+  const availableOffers = state.availableOffers;
+  const pointOffers = state.pointOffers;
+  pointEvent.type = state.selectedType;
+
+  const createTypeList = offerTypes.map((type) => createPointTypeTemplate(type)).join('');
+  const createOfferList = availableOffers.offers.map((offer) => createOfferTemplate(offer, pointOffers)).join('');
+  const destinationList = destinations.map((destination) => createDestinationTemplate(destination.name)).join('');
 
   return (
     `
@@ -37,7 +52,7 @@ function createEditPointTemplate(point, offers, destination, offersType, pointOf
             <div class="event__type-wrapper">
               <label class="event__type  event__type-btn" for="event-type-toggle-1">
                 <span class="visually-hidden">Choose event type</span>
-                <img class="event__type-icon" width="17" height="17" src="img/icons/${point.type}.png" alt="Event type icon">
+                <img class="event__type-icon" width="17" height="17" src="img/icons/${pointEvent.type}.png" alt="Event type icon">
               </label>
               <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -51,20 +66,21 @@ function createEditPointTemplate(point, offers, destination, offersType, pointOf
 
             <div class="event__field-group  event__field-group--destination">
               <label class="event__label  event__type-output" for="event-destination-1">
-                ${point.type}
+                ${pointEvent.type}
               </label>
-              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
+              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${currentDestination.name}"  list="destination-list-1">
               <datalist id="destination-list-1">
-                <option value="Amsterdam"></option>
+                ${destinationList}
               </datalist>
+
             </div>
 
             <div class="event__field-group  event__field-group--time">
               <label class="visually-hidden" for="event-start-time-1">From</label>
-              <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${ formatDate(point.date_from, 'YY/MM/DD HH:mm')}">
+              <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${ formatDate(pointEvent.date_from, 'YY/MM/DD HH:mm')}">
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">To</label>
-              <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${ formatDate(point.date_to, 'YY/MM/DD HH:mm')}">
+              <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${ formatDate(pointEvent.date_to, 'YY/MM/DD HH:mm')}">
             </div>
 
             <div class="event__field-group  event__field-group--price">
@@ -72,7 +88,7 @@ function createEditPointTemplate(point, offers, destination, offersType, pointOf
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${point.base_price}">
+              <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${pointEvent.base_price}">
             </div>
 
             <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -91,7 +107,7 @@ function createEditPointTemplate(point, offers, destination, offersType, pointOf
 
             <section class="event__section  event__section--destination">
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-              <p class="event__destination-description">${destination.description}</p>
+              <p class="event__destination-description">${currentDestination.description}</p>
             </section>
           </section>
         </form>
@@ -100,32 +116,86 @@ function createEditPointTemplate(point, offers, destination, offersType, pointOf
   );
 }
 
-class EditPointView extends AbstractView {
-  #point = null;
-  #offers = null;
-  #destination = null;
-  #offersType = null;
-  #pointOffers = null;
+class EditPointView extends AbstractStatefulView {
   #handleFormSubmit = null;
-  constructor(currentPoint, availableOffers, currentDestination, offerTypes, pointOffers, onFormSubmit) {
+  #handleRollUpClick = null;
+  #offersModel = null;
+  #destinationModel = null;
+
+  constructor(pointModel, destinationModel, offersModel, onFormSubmit, onRollUpClick) {
     super();
-    this.#point = currentPoint;
-    this.#offers = availableOffers;
-    this.#destination = currentDestination;
-    this.#offersType = offerTypes;
-    this.#pointOffers = pointOffers;
     this.#handleFormSubmit = onFormSubmit;
-    this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler);
+    this.#handleRollUpClick = onRollUpClick;
+    this.#offersModel = offersModel;
+    this.#destinationModel = destinationModel;
+    this._setState(EditPointView.parsePointToState(pointModel, destinationModel, offersModel));
+    this._restoreHandlers();
   }
 
   get template() {
-    return createEditPointTemplate(this.#point, this.#offers, this.#destination, this.#offersType, this.#pointOffers);
+    return createEditPointTemplate(this._state);
+  }
+
+  static parsePointToState(pointModel, destinationModel, offersModel) {
+    const point = { ...pointModel };
+    const destinations = destinationModel.destinations;
+    const availableOffers = offersModel.getOffersByType(point.type);
+    const offerTypes = offersModel.getOffersType();
+    const pointOffers = offersModel.getOffersById(point.type, point.offers);
+    const currentDestination = destinationModel.getDestinationsById(point.destination);
+    const selectedType = point.type;
+    return ({ point, destinations, availableOffers, offerTypes, pointOffers, currentDestination, selectedType });
+  }
+
+  static parseStateToPoint(state) {
+    const point = { ...state };
+    point.point.type = point.selectedType;
+    point.point.destination = point.currentDestination.id;
+    delete point.selectedType;
+    delete point.availableOffers;
+    delete point.currentDestination;
+    delete point.offerTypes;
+    delete point.pointOffers;
+    delete point.destinations;
+    delete point.type;
+    delete point.destination;
+    return (point.point);
+  }
+
+  reset(pointModel, destinationModel, offersModel) {
+    this.updateElement(EditPointView.parsePointToState(pointModel, destinationModel, offersModel));
+  }
+
+  _restoreHandlers() {
+    this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollUpClickHandler);
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#pointTypeChangeHandler);
+    this.element.querySelector('#event-destination-1').addEventListener('change', this.#destinationChangeHandler);
   }
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
+  };
+
+  #rollUpClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollUpClick();
+  };
+
+  #pointTypeChangeHandler = (evt) => {
+    if (evt.target.tagName !== 'LABEL') {
+      this.updateElement({
+        availableOffers: this.#offersModel.getOffersByType(evt.target.value),
+        selectedType: evt.target.value
+      });
+    }
+  };
+
+  #destinationChangeHandler = (evt) => {
+    this.updateElement({
+      currentDestination: this.#destinationModel.getDestinationsByName(evt.target.value)
+    });
   };
 }
 

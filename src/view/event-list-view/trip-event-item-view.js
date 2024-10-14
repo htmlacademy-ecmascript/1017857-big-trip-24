@@ -15,9 +15,9 @@ function createOfferTemplate(offer) {
 }
 
 function createTripEventItemTemplate(point, destination, offers) {
-  const pointDay = humanizeDueDate(point.date_from, DATE_FORMAT.EVENT_DATE_FORMAT);
-  const timeFrom = humanizeDueDate(point.date_from, DATE_FORMAT.EVENT_TIME_FORMAT);
-  const timeTo = humanizeDueDate(point.date_to, DATE_FORMAT.EVENT_TIME_FORMAT);
+  const pointDay = humanizeDueDate(point.dateFrom, DATE_FORMAT.EVENT_DATE_FORMAT);
+  const timeFrom = humanizeDueDate(point.dateFrom, DATE_FORMAT.EVENT_TIME_FORMAT);
+  const timeTo = humanizeDueDate(point.dateTo, DATE_FORMAT.EVENT_TIME_FORMAT);
   const createOfferList = offers.map((offer) => createOfferTemplate(offer)).join('');
 
   return (
@@ -31,11 +31,11 @@ function createTripEventItemTemplate(point, destination, offers) {
           <h3 class="event__title">${destination.name}</h3>
           <div class="event__schedule">
             <p class="event__time">
-              <time class="event__start-time" datetime="${point.date_from}">${timeFrom}</time>
+              <time class="event__start-time" datetime="${point.dateFrom}">${timeFrom}</time>
               &mdash;
-              <time class="event__end-time" datetime="${point.date_to}">${timeTo}</time>
+              <time class="event__end-time" datetime="${point.dateTo}">${timeTo}</time>
             </p>
-            <p class="event__duration">${timeFromTo(point.date_from, point.date_to)}</p>
+            <p class="event__duration">${timeFromTo(point.dateFrom, point.dateTo)}</p>
           </div>
           <p class="event__price">
             &euro;&nbsp;<span class="event__price-value">${point.base_price}</span>

@@ -2,15 +2,15 @@ import dayjs from 'dayjs';
 import { getDurationEvent } from './utils';
 
 function checkPointIsFuture(point) {
-  return point.date_from && dayjs().isBefore(point.date_from, 'day');
+  return point.dateFrom && dayjs().isBefore(point.dateFrom, 'day');
 }
 
 function checkPointIsPresent(point) {
-  return point.date_from && dayjs().isSame(point.date_from, 'day');
+  return point.dateFrom && dayjs().isSame(point.dateFrom, 'day');
 }
 
 function checkPointIsPast(point) {
-  return point.date_from && dayjs().isAfter(point.date_from, 'day');
+  return point.dateFrom && dayjs().isAfter(point.dateFrom, 'day');
 }
 
 function getWeightForNullDate(dateA, DateB) {
@@ -30,9 +30,9 @@ function getWeightForNullDate(dateA, DateB) {
 }
 
 function sortPointEventsByTime(pointA, pointB) {
-  const weight = getWeightForNullDate(getDurationEvent(pointA.date_from, pointA.date_to), getDurationEvent(pointB.date_from, pointB.date_to));
+  const weight = getWeightForNullDate(getDurationEvent(pointA.dateFrom, pointA.dateTo), getDurationEvent(pointB.dateFrom, pointB.dateTo));
 
-  return weight ?? getDurationEvent(pointB.date_from, pointB.date_to) - getDurationEvent(pointA.date_from, pointA.date_to);
+  return weight ?? getDurationEvent(pointB.dateFrom, pointB.dateTo) - getDurationEvent(pointA.dateFrom, pointA.dateTo);
 }
 
 function sortPointEventsByPrice(pointA, pointB) {

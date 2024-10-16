@@ -1,6 +1,7 @@
+import Observable from '../framework/observable';
 import { getDestinationsData } from '../mock/destinations-data';
 
-class DestinationsModel {
+class DestinationsModel extends Observable{
   #destinations = getDestinationsData();
 
   get destinations() {
@@ -12,10 +13,7 @@ class DestinationsModel {
     return availableDestinations.find((item) => item.id === id);
   }
 
-  getDestinationsByName(name) {
-    const availableDestinations = this.destinations;
-    return availableDestinations.find((item) => item.name === name);
-  }
+
 }
 
 export default DestinationsModel;

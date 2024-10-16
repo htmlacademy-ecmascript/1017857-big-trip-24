@@ -1,6 +1,7 @@
+import Observable from '../framework/observable';
 import { getOffersData } from '../mock/offers-data';
 
-class OffersModel {
+class OffersModel extends Observable{
   #offers = getOffersData();
 
   get offers() {

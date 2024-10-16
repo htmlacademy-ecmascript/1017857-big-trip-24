@@ -40,4 +40,18 @@ function sortPointEventsByPrice(pointA, pointB) {
   return weight ?? pointB.base_price - pointA.base_price;
 }
 
-export { checkPointIsFuture, checkPointIsPresent, checkPointIsPast, sortPointEventsByTime, sortPointEventsByPrice };
+function isDatesEqual(dateA, dateB) {
+  return (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
+}
+
+function getDestinationsByName(name, destinations) {
+  return destinations.find((item) => item.name === name);
+}
+
+function getOffersByType(type, offers) {
+  return offers.find((item) => item.type === type);
+}
+
+
+
+export { checkPointIsFuture, checkPointIsPresent, checkPointIsPast, sortPointEventsByTime, sortPointEventsByPrice, isDatesEqual, getDestinationsByName, getOffersByType };

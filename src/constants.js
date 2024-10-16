@@ -11,7 +11,7 @@ const DATE_FORMAT = {
 };
 
 const SortingType = {
-  DEFAULT: 'day',
+  DAY: 'day',
   EVENT: 'event',
   TIME: 'time',
   PRICE: 'price',
@@ -25,9 +25,19 @@ const FilterType = {
   PAST: 'past'
 };
 
-// const EnabledSortingTypes = [SortingType.DAY, SortingType.TIME, SortingType.PRICE];
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_ POINT',
+  ADD_POINT: 'ADD_ POINT',
+  DELETE_POINT: 'DELETE_ POINT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
 
 const HOURS = 24;
 const MINUTES = 60;
 
-export { POINTS_COUNT, DATE_FORMAT, HOURS, MINUTES, SortingType, FilterType };
+export { POINTS_COUNT, DATE_FORMAT, HOURS, MINUTES, SortingType, FilterType, UpdateType, UserAction };

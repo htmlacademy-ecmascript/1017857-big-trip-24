@@ -35,7 +35,6 @@ function createOfferTemplate(offer, pointOffers) {
 }
 
 function createEditPointTemplate(state) {
-  console.log(state);
   const { pointData, selectedDestination, selectedType, dateFrom, dateTo, availableOffers } = state;
   const { point, allDestinations, offerTypes} = pointData;
 

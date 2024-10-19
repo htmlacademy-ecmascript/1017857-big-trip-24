@@ -3,6 +3,7 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import {getDestinationsByName, getOffersByType} from '../utilites/point';
+import he from 'he';
 
 function createPointTypeTemplate(type) {
   return (`
@@ -105,7 +106,7 @@ function createEditPointTemplate(state) {
 
             <section class="event__section  event__section--destination">
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-              <p class="event__destination-description">${selectedDestination.description}</p>
+              <p class="event__destination-description">${he.encode(selectedDestination.description)}</p>
             </section>
           </section>
         </form>
@@ -194,11 +195,16 @@ class EditPointView extends AbstractStatefulView {
   }
 
   #setDatepicker() {
+    const commonConfig = {
+      dateFormat: 'd/m/y H:i',
+      enableTime: true,
+      'time_24hr': true
+    };
+
     this.#datepickerFrom = flatpickr(
       this.element.querySelector('#event-start-time-1'),
       {
-        dateFormat: 'd/m/y H:i',
-        enableTime: true,
+        ...commonConfig,
         defaultDate: this._state.dateFrom,
         onChange: this.#dateFromChangeHandler
       }
@@ -207,8 +213,7 @@ class EditPointView extends AbstractStatefulView {
     this.#datepickerTo = flatpickr(
       this.element.querySelector('#event-end-time-1'),
       {
-        dateFormat: 'd/m/y H:i',
-        enableTime: true,
+        ...commonConfig,
         defaultDate: this._state.dateTo,
         minDate: this._state.dateFrom,
         onChange: this.#dateToChangeHandler

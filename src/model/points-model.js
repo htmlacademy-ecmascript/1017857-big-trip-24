@@ -30,6 +30,7 @@ class PointsModel extends Observable{
       update,
       ...this.#points
     ]
+    console.log(this.#points);
 
     this._notify(updateType, update);
   }

@@ -13,7 +13,10 @@ class DestinationsModel extends Observable{
     return availableDestinations.find((item) => item.id === id);
   }
 
-
+  getDestinationsByName(name) {
+    const availableDestinations = this.destinations;
+    return availableDestinations.find((item) => item.name === name);
+  }
 }
 
 export default DestinationsModel;

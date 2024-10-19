@@ -11,21 +11,16 @@ const Mode = {
 
 class TripEventPresenter {
   #tripListContainer = null;
+  #handleDataChange = null;
 
   #tripEventComponent = null;
   #editPointComponent = null;
-  #handleDataChange = null;
   #handleModeChange = null;
 
   #mode = Mode.DEFAULT;
   #destinationModel = null;
   #offersModel = null;
-
   #point = null;
-  // #destination = null;
-  // #availableOffers = null;
-  // #allDestinations = null;
-  // #offerTypes = null;
 
   constructor(
     tripListContainer,
@@ -45,10 +40,6 @@ class TripEventPresenter {
     this.#point = point;
     this.#destinationModel = destinationModel;
     this.#offersModel = offersModel;
-    // this.#destination = this.#destinationModel.getDestinationsById(point.destination)
-    // this.#availableOffers = this.#offersModel.getOffersById(point.type, point.offers);
-    // this.#allDestinations = this.#destinationModel.destinations;
-    // this.#offerTypes = this.#offersModel.getOffersType();
 
     const prevTripEventComponent = this.#tripEventComponent;
     const prevEditPointComponent = this.#editPointComponent;

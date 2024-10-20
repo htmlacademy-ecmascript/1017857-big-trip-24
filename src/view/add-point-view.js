@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter } from '../utilites/utils';
-import AbstractStatefulView from "../framework/view/abstract-stateful-view";
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
@@ -44,13 +44,11 @@ function createPhotoTemplate(picture) {
 }
 
 function createAddPointTemplate(point, destinationsModel, offersModel) {
-  const { basePrice, dateFrom, dateTo, type, destination, offers } = point;
+  const { basePrice, dateFrom, dateTo, type, destination } = point;
   const offerTypes = offersModel.getOffersType();
-  const availableOffers = offersModel.getOffersByType(type)
+  const availableOffers = offersModel.getOffersByType(type);
   const availableDestinations = destinationsModel.destinations;
   const selectedDestination = destination.name !== '' ? destinationsModel.getDestinationsById(destination) : destination;
-  console.log(point)
-
 
   const createTypeList = offerTypes.map((offer) => createPointTypeTemplate(offer)).join('');
   const createAvailableOfferList = availableOffers.offers.map((offer) => createOfferTemplate(offer)).join('');
@@ -133,18 +131,18 @@ function createAddPointTemplate(point, destinationsModel, offersModel) {
 
 class AddPointView extends AbstractStatefulView {
   #handleFormSubmit = null;
-  #handleDeleteClick = null; //todo может переименовать на cancel
+  #handleCancelClick = null;
   #destinationsModel = null;
   #offersModel = null;
   #datepicker = null;
 
-  constructor(point, destinationsModel, offersModel, onFormSubmit, onDeleteClick) {
+  constructor(point, destinationsModel, offersModel, onFormSubmit, onCancelClick) {
     super();
     this._setState(AddPointView.parsePointToState(point));
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#handleFormSubmit = onFormSubmit;
-    this.#handleDeleteClick = onDeleteClick;
+    this.#handleCancelClick = onCancelClick;
 
     this._restoreHandlers();
   }
@@ -175,8 +173,8 @@ class AddPointView extends AbstractStatefulView {
 
   #setDatepicker() {
     const commonConfig = {
-      dateFormat: 'd/m/y H:i',
-      enableTime: true,
+      'dateFormat': 'd/m/y H:i',
+      'enableTime': true,
       'time_24hr': true
     };
 
@@ -200,14 +198,13 @@ class AddPointView extends AbstractStatefulView {
   }
 
   #formSubmitHandler = (evt) => {
-    console.log(this._state);
     evt.preventDefault();
     this.#handleFormSubmit(AddPointView.parseStateToPoint(this._state));
   };
 
   #formCancelClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDeleteClick(AddPointView.parseStateToPoint(this._state));
+    this.#handleCancelClick(AddPointView.parseStateToPoint(this._state));
   };
 
   #destinationChangeHandler = (evt) => {
@@ -224,15 +221,14 @@ class AddPointView extends AbstractStatefulView {
     evt.preventDefault();
 
     const targetType = evt.target.value;
-    this.updateElement ({ type: targetType, offers: [] });
+    this.updateElement({ type: targetType, offers: [] });
   };
 
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
-    console.log(evt.target.value);
     const newPrice = evt.target.value;
     this._setState({
-      base_price: Number(newPrice),
+      basePrice: Number(newPrice),
     });
   };
 
@@ -249,11 +245,11 @@ class AddPointView extends AbstractStatefulView {
   };
 
   static parsePointToState(point) {
-    return {...point};
+    return { ...point };
   }
 
   static parseStateToPoint(state) {
-    return {...state};
+    return { ...state };
   }
 }
 

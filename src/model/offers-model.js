@@ -1,11 +1,27 @@
 import Observable from '../framework/observable';
-import { getOffersData } from '../mock/offers-data';
+import { UpdateType } from '../constants';
 
-class OffersModel extends Observable{
-  #offers = getOffersData();
+class OffersModel extends Observable {
+  #pointsApiService = null;
+  #offers = [];
+
+  constructor(pointsApiService) {
+    super();
+    this.#pointsApiService = pointsApiService;
+  }
 
   get offers() {
     return this.#offers;
+  }
+
+  async init() {
+    try {
+      this.#offers = await this.#pointsApiService.offers;
+    } catch (err) {
+      this.#offers = [];
+    }
+
+    this._notify(UpdateType.INIT);
   }
 
   getOffersType() {

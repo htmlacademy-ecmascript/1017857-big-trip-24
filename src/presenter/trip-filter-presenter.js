@@ -1,7 +1,7 @@
-import {remove, render, replace} from '../framework/render.js';
+import { remove, render, replace } from '../framework/render.js';
 import TripFilterView from '../view/trip-filter-view';
-import {FilterType, UpdateType} from "../constants";
-import {filter} from "../utilites/filter";
+import { FilterType, UpdateType } from '../constants';
+import { filter } from '../utilites/filter';
 
 class TripFilterPresenter {
   #tripFilterContainer = null;

@@ -39,8 +39,10 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function isEscKey (evt) {
+const sortByDay = (eventA, eventB) => dayjs(eventA.dateFrom) - dayjs(eventB.dateFrom);
+
+function isEscKey(evt) {
   return evt.key === 'Escape';
 }
 
-export { getRandomElement, getRandomPositiveInteger, formatDate, timeFromTo, humanizeDueDate, capitalizeFirstLetter, getDurationEvent, isEscKey };
+export { getRandomElement, getRandomPositiveInteger, formatDate, timeFromTo, humanizeDueDate, capitalizeFirstLetter, getDurationEvent, isEscKey, sortByDay };

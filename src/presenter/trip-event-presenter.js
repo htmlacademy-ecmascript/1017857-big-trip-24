@@ -46,18 +46,16 @@ class TripEventPresenter {
 
     this.#tripEventComponent = new TripEventItemView(
       this.#point,
-      this.#destinationModel.getDestinationsById(this.#point.destination),
-      this.#offersModel.getOffersById(this.#point.type, this.#point.offers),
+      this.#destinationModel,
+      this.#offersModel,
       this.#onEditClick,
       this.#handleFavoriteClick
     );
 
     this.#editPointComponent = new EditPointView(
       this.#point,
-      this.#destinationModel.getDestinationsById(this.#point.destination),
-      this.#offersModel.offers,
-      this.#destinationModel.destinations,
-      this.#offersModel.getOffersType(),
+      this.#destinationModel,
+      this.#offersModel,
       this.#onFormSubmit,
       this.#onRollUpClick,
       this.#handleDeleteClick
@@ -73,7 +71,8 @@ class TripEventPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#editPointComponent, prevEditPointComponent);
+      replace(this.#tripEventComponent, prevEditPointComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevTripEventComponent);
@@ -89,13 +88,44 @@ class TripEventPresenter {
     if (this.#mode !== Mode.DEFAULT) {
       this.#editPointComponent.reset(
         this.#point,
-        this.#destinationModel.getDestinationsById(this.#point.destination),
-        this.#offersModel.offers,
-        this.#destinationModel.destinations,
-        this.#offersModel.getOffersType(),
       );
       this.#replaceFormToCard();
     }
+  }
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editPointComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editPointComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#tripEventComponent.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#editPointComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#editPointComponent.shake(resetFormState);
   }
 
   #escKeyDownHandler = (evt) => {
@@ -103,10 +133,6 @@ class TripEventPresenter {
       evt.preventDefault();
       this.#editPointComponent.reset(
         this.#point,
-        this.#destinationModel.getDestinationsById(this.#point.destination),
-        this.#offersModel.offers,
-        this.#destinationModel.destinations,
-        this.#offersModel.getOffersType(),
       );
       this.#replaceFormToCard();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
@@ -119,26 +145,19 @@ class TripEventPresenter {
   };
 
   #onFormSubmit = (update) => {
-    // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
-    // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
-    const isMinorUpdate = !isDatesEqual(this.#point.dateFrom, update.dateFrom)
+    const isMinorUpdate = !isDatesEqual(this.#point.dateFrom, update.dateFrom);
 
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       update
     );
-    this.#replaceFormToCard();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #onRollUpClick = () => {
     this.#editPointComponent.reset(
-      this.#point,
-      this.#destinationModel.getDestinationsById(this.#point.destination),
-      this.#offersModel.offers,
-      this.#destinationModel.destinations,
-      this.#offersModel.getOffersType(),
+      this.#point
     );
     this.#replaceFormToCard();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
@@ -148,7 +167,7 @@ class TripEventPresenter {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,
-      { ...this.#point, 'is_favorite': !this.#point.is_favorite });
+      { ...this.#point, 'isFavorite': !this.#point.isFavorite });
   };
 
   #replaceCardToForm() {
@@ -169,8 +188,8 @@ class TripEventPresenter {
       UserAction.DELETE_POINT,
       UpdateType.MINOR,
       point
-    )
-  }
+    );
+  };
 }
 
 export default TripEventPresenter;

@@ -14,16 +14,29 @@ function createPointTypeTemplate(type) {
   `);
 }
 
-function createOfferTemplate(offer) {
+function createOfferTemplate(offer, index, pointOffers) {
+  const isChecked = pointOffers.some((obj) => obj === offer.id);
+
   return (`
     <div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage">
-      <label class="event__offer-label" for="event-offer-luggage-1">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${index}" type="checkbox" name="event-offer-${index}" data-offer-id="${offer.id}" ${isChecked && 'checked'}>
+      <label class="event__offer-label" for="event-offer-${index}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${offer.price}</span>
       </label>
     </div>
+  `);
+}
+
+function createOfferListTemplate(offerList) {
+  return (`
+    <section class="event__section  event__section--offers">
+      <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+      <div class="event__available-offers">
+        ${offerList}
+      </div>
+    </section>
   `);
 }
 
@@ -35,6 +48,27 @@ function createDestinationTemplate(destination) {
   );
 }
 
+function createDestinationListTemplate(selectedDestination) {
+  return (`
+    <section class="event__section  event__section--destination">
+      <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+      <p class="event__destination-description">${he.encode(selectedDestination.description)}</p>
+
+      ${selectedDestination.pictures.length > 0 ? createPictureListTemplate(selectedDestination.pictures) : ''}
+    </section>
+  `);
+}
+
+function createPictureListTemplate(pictureList) {
+  return (`
+    <div class="event__photos-container">
+      <div class="event__photos-tape">
+        ${pictureList.map((picture) => createPhotoTemplate(picture)).join('')}
+      </div>
+    </div>
+  `);
+}
+
 function createPhotoTemplate(picture) {
   return (
     `
@@ -44,16 +78,18 @@ function createPhotoTemplate(picture) {
 }
 
 function createAddPointTemplate(point, destinationsModel, offersModel) {
-  const { basePrice, dateFrom, dateTo, type, destination } = point;
+  const { basePrice, dateFrom, dateTo, type, destination, offers } = point;
   const offerTypes = offersModel.getOffersType();
   const availableOffers = offersModel.getOffersByType(type);
   const availableDestinations = destinationsModel.destinations;
   const selectedDestination = destination.name !== '' ? destinationsModel.getDestinationsById(destination) : destination;
 
   const createTypeList = offerTypes.map((offer) => createPointTypeTemplate(offer)).join('');
-  const createAvailableOfferList = availableOffers.offers.map((offer) => createOfferTemplate(offer)).join('');
+  const createOfferList = availableOffers.offers.map((item, index) => createOfferTemplate(item, index, offers)).join('');
+  const createOffersSection = createOfferListTemplate(createOfferList);
   const createDestinationList = availableDestinations.map((availableDestination) => createDestinationTemplate(availableDestination)).join('');
-  const createPictureList = selectedDestination.pictures.map((picture) => createPhotoTemplate(picture)).join('');
+  // const createPictureList = selectedDestination.pictures.map((picture) => createPhotoTemplate(picture)).join('');
+  const createDestinationSection = createDestinationListTemplate(selectedDestination);
   return (
     `
       <li class="trip-events__item">
@@ -104,24 +140,8 @@ function createAddPointTemplate(point, destinationsModel, offersModel) {
             <button class="event__reset-btn" type="reset">Cancel</button>
           </header>
           <section class="event__details">
-            <section class="event__section  event__section--offers">
-              <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-              <div class="event__available-offers">
-                ${createAvailableOfferList}
-              </div>
-            </section>
-
-            <section class="event__section  event__section--destination">
-              <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-              <p class="event__destination-description">${he.encode(selectedDestination.description)}</p>
-
-              <div class="event__photos-container">
-                <div class="event__photos-tape">
-                  ${createPictureList}
-                </div>
-              </div>
-            </section>
+            ${availableOffers.offers.length > 0 ? createOffersSection : ''}
+            ${selectedDestination.description ? createDestinationSection : ''}
           </section>
         </form>
       </li>

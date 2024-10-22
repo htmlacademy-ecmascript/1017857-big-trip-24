@@ -19,13 +19,13 @@ function createDestinationTemplate(destination, isDisabled) {
   `);
 }
 
-function createOfferTemplate(offer, pointOffers, isDisabled) {
-  const isChecked = pointOffers.some((obj) => obj.id === offer.id);
+function createOfferTemplate(offer, index, pointOffers, isDisabled) {
+  const isChecked = pointOffers.some((obj) => obj === offer.id);
 
   return (`
     <div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" ${isChecked && 'checked'} ${isDisabled ? 'disabled' : ''}>
-      <label class="event__offer-label" for="event-offer-luggage-1">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${index}" type="checkbox" name="event-offer-${index}" data-offer-id="${offer.id}" ${isChecked && 'checked'} ${isDisabled ? 'disabled' : ''}>
+      <label class="event__offer-label" for="event-offer-${index}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${offer.price}</span>
@@ -34,17 +34,60 @@ function createOfferTemplate(offer, pointOffers, isDisabled) {
   `);
 }
 
+function createOfferListTemplate(offerList) {
+  return (`
+    <section class="event__section  event__section--offers">
+      <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+      <div class="event__available-offers">
+        ${offerList}
+      </div>
+    </section>
+  `);
+}
+
+
+function createDestinationListTemplate(selectedDestination) {
+  return (`
+    <section class="event__section  event__section--destination">
+      <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+      <p class="event__destination-description">${he.encode(selectedDestination.description)}</p>
+
+      ${selectedDestination.pictures.length > 0 ? createPictureListTemplate(selectedDestination.pictures) : ''}
+    </section>
+  `);
+}
+
+function createPictureListTemplate(pictureList) {
+  return (`
+    <div class="event__photos-container">
+      <div class="event__photos-tape">
+        ${pictureList.map((picture) => createPhotoTemplate(picture)).join('')}
+      </div>
+    </div>
+  `);
+}
+
+function createPhotoTemplate(picture) {
+  return (
+    `
+      <img class="event__photo" src="${picture.src}" alt="${picture.description}">
+    `
+  );
+}
+
 function createEditPointTemplate(point, destinationModel, offersModel) {
   const { type, dateFrom, dateTo, destination, offers, isDisabled, isSaving, isDeleting } = point;
+
   const offerTypes = offersModel.getOffersType();
   const availableOffers = offersModel.getOffersByType(type);
   const allDestinations = destinationModel.destinations;
   const selectedDestination = destinationModel.getDestinationsById(destination);
 
   const createTypeList = offerTypes.map((item) => createPointTypeTemplate(item)).join('');
-  const createOfferList = availableOffers.offers.map((item) => createOfferTemplate(item, offers, isDisabled)).join('');
+  const createOfferList = availableOffers.offers.map((item, index) => createOfferTemplate(item, index, offers, isDisabled)).join('');
+  const createOffersSection = createOfferListTemplate(createOfferList);
   const destinationList = allDestinations.map((item) => createDestinationTemplate(item.name, isDisabled)).join('');
-
+  const createDestinationSection = createDestinationListTemplate(selectedDestination);
   return (
     `
       <li class="trip-events__item">
@@ -99,17 +142,8 @@ function createEditPointTemplate(point, destinationModel, offersModel) {
             </button>
           </header>
           <section class="event__details">
-            <section class="event__section  event__section--offers">
-              <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-              <div class="event__available-offers">
-                ${createOfferList}
-              </div>
-            </section>
-
-            <section class="event__section  event__section--destination">
-              <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-              <p class="event__destination-description">${he.encode(selectedDestination.description)}</p>
-            </section>
+            ${availableOffers.offers.length > 0 ? createOffersSection : ''}
+            ${selectedDestination.description ? createDestinationSection : ''}
           </section>
         </form>
       </li>
@@ -175,6 +209,11 @@ class EditPointView extends AbstractStatefulView {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#pointTypeChangeHandler);
     this.element.querySelector('#event-destination-1').addEventListener('change', this.#destinationChangeHandler);
     this.#setDatepicker();
+
+    const offersElement = this.element.querySelector('.event__available-offers');
+    if (offersElement) {
+      offersElement.addEventListener('change', this.#offersChangeHandler);
+    }
   }
 
   removeElement() {
@@ -257,6 +296,12 @@ class EditPointView extends AbstractStatefulView {
     this.updateElement({
       dateTo: userDate,
     });
+  };
+
+  #offersChangeHandler = () => {
+    const selectedOffersElement = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
+    const selectedOffersById = selectedOffersElement.map((offer) => offer.dataset.offerId);
+    this._setState({ offers: selectedOffersById });
   };
 }
 

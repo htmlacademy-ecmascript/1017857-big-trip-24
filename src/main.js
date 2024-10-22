@@ -37,6 +37,7 @@ const newPointButtonComponent = new NewPointButtonView(handleNewPointButtonClick
 function handleNewPointFormClose() {
   newPointButtonComponent.element.disabled = false;
 }
+
 function handleNewPointButtonClick() {
   contentPresenter.createPoint();
   newPointButtonComponent.element.disabled = true;

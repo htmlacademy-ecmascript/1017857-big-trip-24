@@ -1,16 +1,6 @@
 import dayjs from 'dayjs';
 import { HOURS, MINUTES } from '../constants';
 
-function getRandomElement(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function getRandomPositiveInteger(min, max) {
-  const lower = Math.ceil(Math.min(Math.abs(min), Math.abs(max)));
-  const upper = Math.floor(Math.max(Math.abs(min), Math.abs(max)));
-  return Math.floor(Math.random() * (upper - lower + 1) + lower);
-}
-
 function formatDate(date, format) {
   return dayjs(date).format(format);
 }
@@ -41,8 +31,6 @@ function capitalizeFirstLetter(string) {
 
 const sortByDay = (eventA, eventB) => dayjs(eventA.dateFrom) - dayjs(eventB.dateFrom);
 
-function isEscKey(evt) {
-  return evt.key === 'Escape';
-}
+const isEscKey = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
 
-export { getRandomElement, getRandomPositiveInteger, formatDate, timeFromTo, humanizeDueDate, capitalizeFirstLetter, getDurationEvent, isEscKey, sortByDay };
+export { formatDate, timeFromTo, humanizeDueDate, capitalizeFirstLetter, getDurationEvent, isEscKey, sortByDay };

@@ -45,7 +45,6 @@ function createOfferListTemplate(offerList) {
   `);
 }
 
-
 function createDestinationListTemplate(selectedDestination) {
   return (`
     <section class="event__section  event__section--destination">
@@ -162,9 +161,6 @@ class EditPointView extends AbstractStatefulView {
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  #allDestinations = null;
-  #allOffers = null;
-
   constructor(point, destinationModel, offersModel, onFormSubmit, onRollUpClick, onDeleteClick) {
     super();
     this.#destinationModel = destinationModel;
@@ -178,28 +174,6 @@ class EditPointView extends AbstractStatefulView {
 
   get template() {
     return createEditPointTemplate(this._state, this.#destinationModel, this.#offersModel);
-  }
-
-  static parsePointToState(point) {
-    const state = {
-      ...point,
-      isDisabled: false,
-      isSaving: false,
-      isDeleting: false
-    };
-    return (state);
-  }
-
-  static parseStateToPoint(state) {
-    const point = { ...state };
-    delete point.isDisabled;
-    delete point.isSaving;
-    delete point.isDeleting;
-    return (point);
-  }
-
-  reset(point) {
-    this.updateElement(EditPointView.parsePointToState({ point }));
   }
 
   _restoreHandlers() {
@@ -226,6 +200,10 @@ class EditPointView extends AbstractStatefulView {
       this.#datepickerTo.destroy();
       this.#datepickerTo = null;
     }
+  }
+
+  reset(point) {
+    this.updateElement(EditPointView.parsePointToState({ point }));
   }
 
   #setDatepicker() {
@@ -303,6 +281,24 @@ class EditPointView extends AbstractStatefulView {
     const selectedOffersById = selectedOffersElement.map((offer) => offer.dataset.offerId);
     this._setState({ offers: selectedOffersById });
   };
+
+  static parsePointToState(point) {
+    const state = {
+      ...point,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false
+    };
+    return (state);
+  }
+
+  static parseStateToPoint(state) {
+    const point = { ...state };
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+    return (point);
+  }
 }
 
 export default EditPointView;

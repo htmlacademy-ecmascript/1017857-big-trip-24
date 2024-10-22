@@ -23,11 +23,11 @@ class PointsModel extends Observable {
       await Promise.all([this.#offersModel.init(), this.#destinationsModel.init()]);
       const points = await this.#pointsApiService.points;
       this.#points = points.map(this.#adaptToClient);
+      this._notify(UpdateType.INIT);
     } catch (err) {
       this.#points = [];
+      this._notify(UpdateType.ERROR);
     }
-
-    this._notify(UpdateType.INIT);
   }
 
   async updatePoint(updateType, update) {
@@ -93,10 +93,6 @@ class PointsModel extends Observable {
     delete adaptedPoint['is_favorite'];
 
     return adaptedPoint;
-  }
-
-  getPointById(id) {
-    return this.points.find((point) => point.id === id);
   }
 }
 

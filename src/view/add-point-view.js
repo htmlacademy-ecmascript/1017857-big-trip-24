@@ -4,7 +4,6 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
 
-
 function createPointTypeTemplate(type) {
   return (`
     <div class="event__type-item">
@@ -88,7 +87,6 @@ function createAddPointTemplate(point, destinationsModel, offersModel) {
   const createOfferList = availableOffers.offers.map((item, index) => createOfferTemplate(item, index, offers)).join('');
   const createOffersSection = createOfferListTemplate(createOfferList);
   const createDestinationList = availableDestinations.map((availableDestination) => createDestinationTemplate(availableDestination)).join('');
-  // const createPictureList = selectedDestination.pictures.map((picture) => createPhotoTemplate(picture)).join('');
   const createDestinationSection = createDestinationListTemplate(selectedDestination);
   return (
     `
@@ -154,7 +152,9 @@ class AddPointView extends AbstractStatefulView {
   #handleCancelClick = null;
   #destinationsModel = null;
   #offersModel = null;
-  #datepicker = null;
+
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   constructor(point, destinationsModel, offersModel, onFormSubmit, onCancelClick) {
     super();
@@ -171,15 +171,6 @@ class AddPointView extends AbstractStatefulView {
     return createAddPointTemplate(this._state, this.#destinationsModel, this.#offersModel);
   }
 
-  removeElement() {
-    super.removeElement();
-
-    if (this.#datepicker) {
-      this.#datepicker.destroy();
-      this.#datepicker = null;
-    }
-  }
-
   _restoreHandlers() {
     this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCancelClickHandler);
@@ -187,8 +178,24 @@ class AddPointView extends AbstractStatefulView {
     this.element.querySelector('#event-destination-1').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__type-group').addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__input--price').addEventListener('input', this.#priceChangeHandler);
-
     this.#setDatepicker();
+
+    const offersElement = this.element.querySelector('.event__available-offers');
+    if (offersElement) {
+      offersElement.addEventListener('change', this.#offersChangeHandler);
+    }
+  }
+
+  removeElement() {
+    super.removeElement();
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
   }
 
   #setDatepicker() {
@@ -198,7 +205,7 @@ class AddPointView extends AbstractStatefulView {
       'time_24hr': true
     };
 
-    this.datepickerFrom = flatpickr(
+    this.#datepickerFrom = flatpickr(
       this.element.querySelector('#event-start-time-1'),
       {
         ...commonConfig,
@@ -207,7 +214,7 @@ class AddPointView extends AbstractStatefulView {
         maxDate: this._state.dateTo,
       });
 
-    this.datepickerTo = flatpickr(
+    this.#datepickerTo = flatpickr(
       this.element.querySelector('#event-end-time-1'),
       {
         ...commonConfig,
@@ -229,19 +236,19 @@ class AddPointView extends AbstractStatefulView {
 
   #destinationChangeHandler = (evt) => {
     evt.preventDefault();
-    const targetDestination = evt.target.value;
-    const newDestination = this.#destinationsModel.getDestinationsByName(targetDestination);
+    const selectedDestination = this.#destinationsModel.getDestinationsByName(evt.target.value);
     this.updateElement({
-      destination: newDestination.id,
+      destination: selectedDestination.id
     });
-
   };
 
   #typeChangeHandler = (evt) => {
     evt.preventDefault();
-
-    const targetType = evt.target.value;
-    this.updateElement({ type: targetType, offers: [] });
+    if (evt.target.tagName !== 'LABEL') {
+      this.updateElement({
+        type: evt.target.value,
+        offers: [] });
+    }
   };
 
   #priceChangeHandler = (evt) => {
@@ -264,12 +271,28 @@ class AddPointView extends AbstractStatefulView {
     });
   };
 
+  #offersChangeHandler = () => {
+    const selectedOffersElement = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
+    const selectedOffersById = selectedOffersElement.map((offer) => offer.dataset.offerId);
+    this._setState({ offers: selectedOffersById });
+  };
+
   static parsePointToState(point) {
-    return { ...point };
+    const state = {
+      ...point,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false
+    };
+    return (state);
   }
 
   static parseStateToPoint(state) {
-    return { ...state };
+    const point = { ...state };
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+    return (point);
   }
 }
 

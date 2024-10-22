@@ -1,5 +1,5 @@
 import TripSortView from '../view/trip-sort-view';
-import TripEventListView from '../view/event-list-view/trip-event-list-view';
+import TripEventListView from '../view/trip-event-list-view';
 import ListEmptyView from '../view/list-empty-view';
 import { remove, render } from '../framework/render.js';
 import TripEventPresenter from './trip-event-presenter';
@@ -9,6 +9,7 @@ import { sortPointEventsByPrice, sortPointEventsByTime } from '../utilites/point
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { filter } from '../utilites/filter';
 import LoadingView from '../view/loading-view';
+import { sortByDay } from '../utilites/utils';
 
 class ContentPresenter {
   #contentContainer = null;
@@ -20,10 +21,8 @@ class ContentPresenter {
 
   #currentSortType = SortingType.DAY;
   #sortComponent = null;
-  #noPointComponent = null;
   #filterType = FilterType.EVERYTHING;
   #tripListComponent = new TripEventListView();
-  #emptyListComponent = new ListEmptyView();
   #loadingComponent = new LoadingView();
   #tripEventPresenters = new Map();
   #newPointPresenter = null;
@@ -63,7 +62,7 @@ class ContentPresenter {
       case SortingType.PRICE:
         return filteredPoints.sort(sortPointEventsByPrice);
     }
-    return filteredPoints;
+    return filteredPoints.sort(sortByDay);
   }
 
   get offers() {
@@ -80,8 +79,12 @@ class ContentPresenter {
 
   createPoint() {
     this.#currentSortType = SortingType.DAY;
+    this.#filterType = FilterType.EVERYTHING;
     this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newPointPresenter.init();
+    if (this.#messageComponent) {
+      remove(this.#messageComponent);
+    }
   }
 
   #renderTripEventItem(point) {
@@ -99,8 +102,8 @@ class ContentPresenter {
   }
 
   #renderEmptyList() {
-    this.#emptyListComponent = new ListEmptyView(this.#filterType);
-    render(this.#emptyListComponent, this.#contentContainer);
+    this.#messageComponent = new ListEmptyView(this.#filterType);
+    render(this.#messageComponent, this.#contentContainer);
   }
 
   #renderSort() {
@@ -138,13 +141,17 @@ class ContentPresenter {
     remove(this.#sortComponent);
     remove(this.#loadingComponent);
 
-    if (this.#noPointComponent) {
-      remove(this.#noPointComponent);
+    if (this.#messageComponent) {
+      remove(this.#messageComponent);
     }
 
     if (resetSortType) {
       this.#currentSortType = SortingType.DAY;
     }
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#contentContainer);
   }
 
   #handleViewAction = async (actionType, updateType, update) => {
@@ -219,10 +226,6 @@ class ContentPresenter {
     this.#clearContent();
     this.#renderContent();
   };
-
-  #renderLoading() {
-    render(this.#loadingComponent, this.#contentContainer);
-  }
 }
 
 export default ContentPresenter;

@@ -1,6 +1,7 @@
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../constants';
 import AddPointView from '../view/add-point-view';
+import { isEscKey } from '../utilites/utils';
 
 const DEFAULT_TYPE = 'flight';
 
@@ -95,12 +96,11 @@ class NewPointPresenter {
   };
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (isEscKey(evt)) {
       evt.preventDefault();
       this.destroy();
     }
   };
-
 }
 
 export default NewPointPresenter;

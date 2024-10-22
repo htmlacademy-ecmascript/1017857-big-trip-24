@@ -1,8 +1,9 @@
 import { render, replace, remove } from '../framework/render';
-import TripEventItemView from '../view/event-list-view/trip-event-item-view';
+import TripEventItemView from '../view/trip-event-item-view';
 import EditPointView from '../view/edit-point-view';
 import { UserAction, UpdateType } from '../constants';
 import { isDatesEqual } from '../utilites/point';
+import { isEscKey } from '../utilites/utils';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -32,11 +33,7 @@ class TripEventPresenter {
     this.#handleModeChange = onModeChange;
   }
 
-  init(
-    point,
-    destinationModel,
-    offersModel
-  ) {
+  init(point, destinationModel, offersModel) {
     this.#point = point;
     this.#destinationModel = destinationModel;
     this.#offersModel = offersModel;
@@ -128,8 +125,21 @@ class TripEventPresenter {
     this.#editPointComponent.shake(resetFormState);
   }
 
+  #replaceCardToForm() {
+    replace(this.#editPointComponent, this.#tripEventComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
+  }
+
+  #replaceFormToCard() {
+    replace(this.#tripEventComponent, this.#editPointComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
+  }
+
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isEscKey(evt)) {
       evt.preventDefault();
       this.#editPointComponent.reset(
         this.#point,
@@ -169,19 +179,6 @@ class TripEventPresenter {
       UpdateType.MINOR,
       { ...this.#point, 'isFavorite': !this.#point.isFavorite });
   };
-
-  #replaceCardToForm() {
-    replace(this.#editPointComponent, this.#tripEventComponent);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
-    this.#handleModeChange();
-    this.#mode = Mode.EDITING;
-  }
-
-  #replaceFormToCard() {
-    replace(this.#tripEventComponent, this.#editPointComponent);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
-    this.#mode = Mode.DEFAULT;
-  }
 
   #handleDeleteClick = (point) => {
     this.#handleDataChange(

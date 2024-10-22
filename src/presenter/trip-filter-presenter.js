@@ -20,10 +20,10 @@ class TripFilterPresenter {
   }
 
   get filters() {
-    const tasks = this.#pointsModel.points;
+    const points = this.#pointsModel.points;
     return Object.values(FilterType).map((type) => ({
       type,
-      count: filter[type](tasks).length
+      count: filter[type](points).length
     }));
   }
 

@@ -50,17 +50,17 @@ const getCostTrip = (eventPoints, offers) =>
 
 const getCostTripTemplate = (eventPoints, offers) =>
   `<p class="trip-info__cost">
-        Total: &euro;&nbsp;<span class="trip-info__cost-value">${getCostTrip(eventPoints, offers)}</span>
-      </p>`;
+    Total: &euro;&nbsp;<span class="trip-info__cost-value">${getCostTrip(eventPoints, offers)}</span>
+  </p>`;
 
 const createNewTripInfoViewTemplate = ({ eventPoints, destinations, offers, isEventPointLength }) =>
   `<section class="trip-main__trip-info  trip-info">
-      <div class="trip-info__main">
-        <h1 class="trip-info__title">${isEventPointLength ? getDestinationRoute(eventPoints, destinations) : ''}</h1>
-        ${isEventPointLength ? getDateTemplate(eventPoints) : ''}
-      </div>
-      ${isEventPointLength ? getCostTripTemplate(eventPoints, offers) : ''}
-    </section>`;
+    <div class="trip-info__main">
+      <h1 class="trip-info__title">${isEventPointLength ? getDestinationRoute(eventPoints, destinations) : ''}</h1>
+      ${isEventPointLength ? getDateTemplate(eventPoints) : ''}
+    </div>
+    ${isEventPointLength ? getCostTripTemplate(eventPoints, offers) : ''}
+  </section>`;
 
 export default class TripInfoView extends AbstractView {
   #eventPoints = [];

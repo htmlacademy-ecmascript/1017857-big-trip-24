@@ -1,4 +1,3 @@
-const POINTS_COUNT = 5;
 const TRIP_DESTINATION_COUNT = 3;
 
 const DateFormat = {
@@ -49,4 +48,4 @@ const TimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
-export { POINTS_COUNT, DateFormat, HOURS, MINUTES, SortingType, FilterType, UpdateType, UserAction, TimeLimit, TRIP_DESTINATION_COUNT };
+export { DateFormat, HOURS, MINUTES, SortingType, FilterType, UpdateType, UserAction, TimeLimit, TRIP_DESTINATION_COUNT };

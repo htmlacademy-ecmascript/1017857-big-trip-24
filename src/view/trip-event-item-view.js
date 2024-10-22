@@ -1,6 +1,6 @@
-import AbstractView from '../../framework/view/abstract-view';
-import { humanizeDueDate, timeFromTo } from '../../utilites/utils';
-import { DateFormat } from '../../constants';
+import AbstractView from '../framework/view/abstract-view';
+import { humanizeDueDate, timeFromTo } from '../utilites/utils';
+import { DateFormat } from '../constants';
 
 function createOfferTemplate(offer) {
   return (
@@ -15,14 +15,14 @@ function createOfferTemplate(offer) {
 }
 
 function createTripEventItemTemplate(point, destinationModel, offersModel) {
-  const { dateFrom, dateTo, type, destination, basePrice, isFavorite } = point;
-  const offers = offersModel.getOffersByType(type);
+  const { dateFrom, dateTo, type, destination, basePrice, isFavorite, offers } = point;
+  const pointOffers = offersModel.getOffersById(type, offers);
   const currentDestination = destinationModel.getDestinationsById(destination);
 
   const pointDay = humanizeDueDate(dateFrom, DateFormat.EVENT_DATE_FORMAT);
   const timeFrom = humanizeDueDate(dateFrom, DateFormat.EVENT_TIME_FORMAT);
   const timeTo = humanizeDueDate(dateTo, DateFormat.EVENT_TIME_FORMAT);
-  const createOfferList = offers.offers.map((offer) => createOfferTemplate(offer)).join('');
+  const createOfferList = pointOffers.map((offer) => createOfferTemplate(offer)).join('');
 
   return (
     `

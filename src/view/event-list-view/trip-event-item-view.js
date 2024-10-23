@@ -24,7 +24,7 @@ function createTripEventItemTemplate(point, destination, offers) {
     `
       <li class="trip-events__item">
         <div class="event">
-          <time class="event__date" datetime="2019-03-18">${pointDay}</time>
+          <time class="event__date" datetime="${point.dateFrom}">${pointDay}</time>
           <div class="event__type">
             <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
           </div>
@@ -60,16 +60,16 @@ function createTripEventItemTemplate(point, destination, offers) {
 }
 
 class TripEventItemView extends AbstractView {
-  #pointModel = null;
-  #destinationModel = null;
-  #offersModel = null;
+  #point = null;
+  #destination = null;
+  #offers = null;
   #handleEditClick = null;
   #handleFavoriteClick = null;
-  constructor(pointModel, destinationModel, offersModel, onEditClick, onFavoriteClick) {
+  constructor(point, destination, offers, onEditClick, onFavoriteClick) {
     super();
-    this.#pointModel = pointModel;
-    this.#destinationModel = destinationModel;
-    this.#offersModel = offersModel;
+    this.#point = point;
+    this.#destination = destination;
+    this.#offers = offers;
     this.#handleEditClick = onEditClick;
     this.#handleFavoriteClick = onFavoriteClick;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
@@ -77,7 +77,7 @@ class TripEventItemView extends AbstractView {
   }
 
   get template() {
-    return createTripEventItemTemplate(this.#pointModel, this.#destinationModel.getDestinationsById(this.#pointModel.destination), this.#offersModel.getOffersById(this.#pointModel.type, this.#pointModel.offers));
+    return createTripEventItemTemplate(this.#point, this.#destination, this.#offers);
   }
 
   #editClickHandler = (evt) => {

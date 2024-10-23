@@ -1,6 +1,8 @@
 import { render, replace, remove } from '../framework/render';
 import TripEventItemView from '../view/event-list-view/trip-event-item-view';
 import EditPointView from '../view/edit-point-view';
+import { UserAction, UpdateType } from '../constants';
+import { isDatesEqual } from '../utilites/point';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -9,16 +11,16 @@ const Mode = {
 
 class TripEventPresenter {
   #tripListContainer = null;
+  #handleDataChange = null;
 
   #tripEventComponent = null;
   #editPointComponent = null;
-  #handleDataChange = null;
   #handleModeChange = null;
 
   #mode = Mode.DEFAULT;
-  #pointModel = null;
   #destinationModel = null;
   #offersModel = null;
+  #point = null;
 
   constructor(
     tripListContainer,
@@ -32,29 +34,33 @@ class TripEventPresenter {
 
   init(
     point,
-    destination,
-    offers
+    destinationModel,
+    offersModel
   ) {
-    this.#pointModel = point;
-    this.#destinationModel = destination;
-    this.#offersModel = offers;
+    this.#point = point;
+    this.#destinationModel = destinationModel;
+    this.#offersModel = offersModel;
+
     const prevTripEventComponent = this.#tripEventComponent;
     const prevEditPointComponent = this.#editPointComponent;
 
     this.#tripEventComponent = new TripEventItemView(
-      this.#pointModel,
-      this.#destinationModel,
-      this.#offersModel,
+      this.#point,
+      this.#destinationModel.getDestinationsById(this.#point.destination),
+      this.#offersModel.getOffersById(this.#point.type, this.#point.offers),
       this.#onEditClick,
       this.#handleFavoriteClick
     );
 
     this.#editPointComponent = new EditPointView(
-      this.#pointModel,
-      this.#destinationModel,
-      this.#offersModel,
+      this.#point,
+      this.#destinationModel.getDestinationsById(this.#point.destination),
+      this.#offersModel.offers,
+      this.#destinationModel.destinations,
+      this.#offersModel.getOffersType(),
       this.#onFormSubmit,
-      this.#onRollUpClick
+      this.#onRollUpClick,
+      this.#handleDeleteClick
     );
 
     if (prevTripEventComponent === null || prevEditPointComponent === null) {
@@ -81,7 +87,13 @@ class TripEventPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
-      this.#editPointComponent.reset(this.#pointModel, this.#destinationModel, this.#offersModel);
+      this.#editPointComponent.reset(
+        this.#point,
+        this.#destinationModel.getDestinationsById(this.#point.destination),
+        this.#offersModel.offers,
+        this.#destinationModel.destinations,
+        this.#offersModel.getOffersType(),
+      );
       this.#replaceFormToCard();
     }
   }
@@ -89,7 +101,13 @@ class TripEventPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
-      this.#editPointComponent.reset(this.#pointModel, this.#destinationModel, this.#offersModel);
+      this.#editPointComponent.reset(
+        this.#point,
+        this.#destinationModel.getDestinationsById(this.#point.destination),
+        this.#offersModel.offers,
+        this.#destinationModel.destinations,
+        this.#offersModel.getOffersType(),
+      );
       this.#replaceFormToCard();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
@@ -100,20 +118,37 @@ class TripEventPresenter {
     document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
-  #onFormSubmit = (point) => {
-    this.#handleDataChange(point);
+  #onFormSubmit = (update) => {
+    // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
+    // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
+    const isMinorUpdate = !isDatesEqual(this.#point.dateFrom, update.dateFrom)
+
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update
+    );
     this.#replaceFormToCard();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #onRollUpClick = () => {
-    this.#editPointComponent.reset(this.#pointModel, this.#destinationModel, this.#offersModel);
+    this.#editPointComponent.reset(
+      this.#point,
+      this.#destinationModel.getDestinationsById(this.#point.destination),
+      this.#offersModel.offers,
+      this.#destinationModel.destinations,
+      this.#offersModel.getOffersType(),
+    );
     this.#replaceFormToCard();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({ ...this.#pointModel, 'is_favorite': !this.#pointModel.is_favorite });
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      { ...this.#point, 'is_favorite': !this.#point.is_favorite });
   };
 
   #replaceCardToForm() {
@@ -127,6 +162,14 @@ class TripEventPresenter {
     replace(this.#tripEventComponent, this.#editPointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
+  }
+
+  #handleDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point
+    )
   }
 }
 

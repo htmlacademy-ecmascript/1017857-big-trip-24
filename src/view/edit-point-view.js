@@ -75,7 +75,7 @@ function createPhotoTemplate(picture) {
 }
 
 function createEditPointTemplate(point, destinationModel, offersModel) {
-  const { type, dateFrom, dateTo, destination, offers, isDisabled, isSaving, isDeleting } = point;
+  const { type, dateFrom, dateTo, destination, offers, isDisabled, isSaving, isDeleting, basePrice } = point;
 
   const offerTypes = offersModel.getOffersType();
   const availableOffers = offersModel.getOffersByType(type);
@@ -131,7 +131,7 @@ function createEditPointTemplate(point, destinationModel, offersModel) {
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${point.basePrice}" ${isDisabled ? 'disabled' : ''} required>
+              <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(String(basePrice))}" onkeyup="this.value = this.value.replace(/[^0-9]/g,'');" ${isDisabled ? 'disabled' : ''} required>
             </div>
 
             <button class="event__save-btn  btn  btn--blue" type="submit" ${isSaving ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
@@ -182,6 +182,7 @@ class EditPointView extends AbstractStatefulView {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteClickHandler);
     this.element.querySelector('.event__type-group').addEventListener('click', this.#pointTypeChangeHandler);
     this.element.querySelector('#event-destination-1').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#priceInputHandler);
     this.#setDatepicker();
 
     const offersElement = this.element.querySelector('.event__available-offers');
@@ -280,6 +281,10 @@ class EditPointView extends AbstractStatefulView {
     const selectedOffersElement = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
     const selectedOffersById = selectedOffersElement.map((offer) => offer.dataset.offerId);
     this._setState({ offers: selectedOffersById });
+  };
+
+  #priceInputHandler = (evt) => {
+    this._setState({ basePrice: evt.target.value });
   };
 
   static parsePointToState(point) {

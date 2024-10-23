@@ -77,7 +77,7 @@ function createPhotoTemplate(picture) {
 }
 
 function createAddPointTemplate(point, destinationsModel, offersModel) {
-  const { basePrice, dateFrom, dateTo, type, destination, offers } = point;
+  const { basePrice, dateFrom, dateTo, type, destination, offers, isDisabled } = point;
   const offerTypes = offersModel.getOffersType();
   const availableOffers = offersModel.getOffersByType(type);
   const availableDestinations = destinationsModel.destinations;
@@ -91,7 +91,7 @@ function createAddPointTemplate(point, destinationsModel, offersModel) {
   return (
     `
       <li class="trip-events__item">
-        <form class="event event--edit" action="https://echo.htmlacademy.ru/courses" method="post">
+        <form class="event event--edit" action="#" method="post">
           <header class="event__header">
             <div class="event__type-wrapper">
               <label class="event__type  event__type-btn" for="event-type-toggle-1">
@@ -112,7 +112,7 @@ function createAddPointTemplate(point, destinationsModel, offersModel) {
               <label class="event__label  event__type-output" for="event-destination-1">
                 ${type}
               </label>
-              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${selectedDestination.name}" list="destination-list-1">
+              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${selectedDestination !== null ? selectedDestination.name : ''}" ${isDisabled ? 'disabled' : ''} list="destination-list-1" required>
               <datalist id="destination-list-1">
                  ${createDestinationList}
               </datalist>
@@ -120,10 +120,10 @@ function createAddPointTemplate(point, destinationsModel, offersModel) {
 
             <div class="event__field-group  event__field-group--time">
               <label class="visually-hidden" for="event-start-time-1">From</label>
-              <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom}">
+              <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom}" ${isDisabled ? 'disabled' : ''} required>
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">To</label>
-              <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo}">
+              <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo}" ${isDisabled ? 'disabled' : ''} required>
             </div>
 
             <div class="event__field-group  event__field-group--price">
@@ -131,7 +131,7 @@ function createAddPointTemplate(point, destinationsModel, offersModel) {
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+              <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(String(basePrice))}" onkeyup="this.value = this.value.replace(/[^0-9]/g,'');" ${isDisabled ? 'disabled' : ''} required>
             </div>
 
             <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -253,9 +253,8 @@ class AddPointView extends AbstractStatefulView {
 
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
-    const newPrice = evt.target.value;
     this._setState({
-      basePrice: Number(newPrice),
+      basePrice: evt.target.value,
     });
   };
 

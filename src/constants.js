@@ -1,6 +1,6 @@
-const POINTS_COUNT = 5;
+const TRIP_DESTINATION_COUNT = 3;
 
-const DATE_FORMAT = {
+const DateFormat = {
   EVENT_TIME_FORMAT: 'HH:mm',
   EVENT_DATE_FORMAT: 'MMM DD',
   EVENT_DATE_ATTRIBUTE_FORMAT: 'YYYY-MM-DD',
@@ -8,6 +8,7 @@ const DATE_FORMAT = {
   MAIN_EVENT_DATE_START_FORMAT: 'DD',
   MAIN_EVENT_DATE_END_FORMAT: 'DD MMM',
   INPUT_DATE_FORMAT: 'DD/MM/YY HH:mm',
+  TRIP_INFO: 'D MMM'
 };
 
 const SortingType = {
@@ -35,9 +36,16 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
+  ERROR: 'ERROR'
 };
 
 const HOURS = 24;
 const MINUTES = 60;
 
-export { POINTS_COUNT, DATE_FORMAT, HOURS, MINUTES, SortingType, FilterType, UpdateType, UserAction };
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
+export { DateFormat, HOURS, MINUTES, SortingType, FilterType, UpdateType, UserAction, TimeLimit, TRIP_DESTINATION_COUNT };

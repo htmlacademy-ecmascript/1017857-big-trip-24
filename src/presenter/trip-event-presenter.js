@@ -1,8 +1,9 @@
 import { render, replace, remove } from '../framework/render';
-import TripEventItemView from '../view/event-list-view/trip-event-item-view';
+import TripEventItemView from '../view/trip-event-item-view';
 import EditPointView from '../view/edit-point-view';
 import { UserAction, UpdateType } from '../constants';
 import { isDatesEqual } from '../utilites/point';
+import { isEscKey } from '../utilites/utils';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -32,11 +33,7 @@ class TripEventPresenter {
     this.#handleModeChange = onModeChange;
   }
 
-  init(
-    point,
-    destinationModel,
-    offersModel
-  ) {
+  init(point, destinationModel, offersModel) {
     this.#point = point;
     this.#destinationModel = destinationModel;
     this.#offersModel = offersModel;
@@ -46,18 +43,16 @@ class TripEventPresenter {
 
     this.#tripEventComponent = new TripEventItemView(
       this.#point,
-      this.#destinationModel.getDestinationsById(this.#point.destination),
-      this.#offersModel.getOffersById(this.#point.type, this.#point.offers),
+      this.#destinationModel,
+      this.#offersModel,
       this.#onEditClick,
       this.#handleFavoriteClick
     );
 
     this.#editPointComponent = new EditPointView(
       this.#point,
-      this.#destinationModel.getDestinationsById(this.#point.destination),
-      this.#offersModel.offers,
-      this.#destinationModel.destinations,
-      this.#offersModel.getOffersType(),
+      this.#destinationModel,
+      this.#offersModel,
       this.#onFormSubmit,
       this.#onRollUpClick,
       this.#handleDeleteClick
@@ -73,7 +68,8 @@ class TripEventPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#editPointComponent, prevEditPointComponent);
+      replace(this.#tripEventComponent, prevEditPointComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevTripEventComponent);
@@ -89,67 +85,45 @@ class TripEventPresenter {
     if (this.#mode !== Mode.DEFAULT) {
       this.#editPointComponent.reset(
         this.#point,
-        this.#destinationModel.getDestinationsById(this.#point.destination),
-        this.#offersModel.offers,
-        this.#destinationModel.destinations,
-        this.#offersModel.getOffersType(),
       );
       this.#replaceFormToCard();
     }
   }
 
-  #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      this.#editPointComponent.reset(
-        this.#point,
-        this.#destinationModel.getDestinationsById(this.#point.destination),
-        this.#offersModel.offers,
-        this.#destinationModel.destinations,
-        this.#offersModel.getOffersType(),
-      );
-      this.#replaceFormToCard();
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editPointComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
     }
-  };
+  }
 
-  #onEditClick = () => {
-    this.#replaceCardToForm();
-    document.addEventListener('keydown', this.#escKeyDownHandler);
-  };
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editPointComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
 
-  #onFormSubmit = (update) => {
-    // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
-    // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
-    const isMinorUpdate = !isDatesEqual(this.#point.dateFrom, update.dateFrom)
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#tripEventComponent.shake();
+      return;
+    }
 
-    this.#handleDataChange(
-      UserAction.UPDATE_POINT,
-      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
-      update
-    );
-    this.#replaceFormToCard();
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
-  };
+    const resetFormState = () => {
+      this.#editPointComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
 
-  #onRollUpClick = () => {
-    this.#editPointComponent.reset(
-      this.#point,
-      this.#destinationModel.getDestinationsById(this.#point.destination),
-      this.#offersModel.offers,
-      this.#destinationModel.destinations,
-      this.#offersModel.getOffersType(),
-    );
-    this.#replaceFormToCard();
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
-  };
-
-  #handleFavoriteClick = () => {
-    this.#handleDataChange(
-      UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
-      { ...this.#point, 'is_favorite': !this.#point.is_favorite });
-  };
+    this.#editPointComponent.shake(resetFormState);
+  }
 
   #replaceCardToForm() {
     replace(this.#editPointComponent, this.#tripEventComponent);
@@ -164,13 +138,55 @@ class TripEventPresenter {
     this.#mode = Mode.DEFAULT;
   }
 
+  #escKeyDownHandler = (evt) => {
+    if (isEscKey(evt)) {
+      evt.preventDefault();
+      this.#editPointComponent.reset(
+        this.#point,
+      );
+      this.#replaceFormToCard();
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
+    }
+  };
+
+  #onEditClick = () => {
+    this.#replaceCardToForm();
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+  };
+
+  #onFormSubmit = (update) => {
+    const isMinorUpdate = !isDatesEqual(this.#point.dateFrom, update.dateFrom);
+
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update
+    );
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+  };
+
+  #onRollUpClick = () => {
+    this.#editPointComponent.reset(
+      this.#point
+    );
+    this.#replaceFormToCard();
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+  };
+
+  #handleFavoriteClick = () => {
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      { ...this.#point, 'isFavorite': !this.#point.isFavorite });
+  };
+
   #handleDeleteClick = (point) => {
     this.#handleDataChange(
       UserAction.DELETE_POINT,
       UpdateType.MINOR,
       point
-    )
-  }
+    );
+  };
 }
 
 export default TripEventPresenter;

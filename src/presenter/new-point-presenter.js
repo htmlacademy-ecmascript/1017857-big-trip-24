@@ -1,7 +1,7 @@
-import {remove, render, RenderPosition} from '../framework/render.js';
-import {nanoid} from 'nanoid';
+import { remove, render, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../constants';
 import AddPointView from '../view/add-point-view';
+import { isEscKey } from '../utilites/utils';
 
 const DEFAULT_TYPE = 'flight';
 
@@ -14,7 +14,7 @@ const BLANK_TRIP_POINT = {
     name: '',
     pictures: [],
   },
-  'is_favorite': false,
+  'isFavorite': false,
   'offers': [],
   'type': DEFAULT_TYPE
 };
@@ -64,28 +64,43 @@ class NewPointPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  setSaving() {
+    this.#addPointComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#addPointComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+      });
+    };
+
+    this.#addPointComponent.shake(resetFormState);
+  }
+
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      // Пока у нас нет сервера, который бы после сохранения
-      // выдывал честный id задачи, нам нужно позаботиться об этом самим
-      {id: nanoid(), ...point},
+      point
     );
     this.destroy();
   };
 
   #handleDeleteClick = () => {
     this.destroy();
-  }
+  };
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (isEscKey(evt)) {
       evt.preventDefault();
       this.destroy();
     }
   };
-
 }
 
 export default NewPointPresenter;

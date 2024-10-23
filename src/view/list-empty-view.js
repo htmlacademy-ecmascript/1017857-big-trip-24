@@ -6,6 +6,7 @@ const NoPointsTextType = {
   [FilterType.FUTURE]: 'There are no future events now',
   [FilterType.PRESENT]: 'There are no present events now',
   [FilterType.PAST]: 'There are no past events now',
+  'ERROR': 'Failed to load latest route information'
 };
 
 function createListEmptyTemplate(filterType) {

@@ -1,12 +1,15 @@
 import TripSortView from '../view/trip-sort-view';
-import TripEventListView from '../view/event-list-view/trip-event-list-view';
+import TripEventListView from '../view/trip-event-list-view';
 import ListEmptyView from '../view/list-empty-view';
-import {remove, render} from '../framework/render.js';
+import { remove, render } from '../framework/render.js';
 import TripEventPresenter from './trip-event-presenter';
 import NewPointPresenter from './new-point-presenter';
-import { SortingType, UpdateType, UserAction, FilterType } from '../constants';
+import { SortingType, UpdateType, UserAction, FilterType, TimeLimit } from '../constants';
 import { sortPointEventsByPrice, sortPointEventsByTime } from '../utilites/point';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { filter } from '../utilites/filter';
+import LoadingView from '../view/loading-view';
+import { sortByDay } from '../utilites/utils';
 
 class ContentPresenter {
   #contentContainer = null;
@@ -14,15 +17,20 @@ class ContentPresenter {
   #offersModel = null;
   #destinationsModel = null;
   #filtersModel = null;
+  #messageComponent = null;
 
   #currentSortType = SortingType.DAY;
   #sortComponent = null;
-  #noPointComponent = null;
   #filterType = FilterType.EVERYTHING;
   #tripListComponent = new TripEventListView();
-  #emptyListComponent = new ListEmptyView();
+  #loadingComponent = new LoadingView();
   #tripEventPresenters = new Map();
   #newPointPresenter = null;
+  #isLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT,
+  });
 
   constructor(contentContainer, pointsModel, offersModel, destinationsModel, filtersModel, onNewPointDestroy) {
     this.#contentContainer = contentContainer;
@@ -39,8 +47,8 @@ class ContentPresenter {
       onNewPointDestroy
     );
 
-    this.#pointsModel.addObserver(this.#handleModelEvent)
-    this.#filtersModel.addObserver(this.#handleModelEvent)
+    this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filtersModel.addObserver(this.#handleModelEvent);
   }
 
   get pointEvents() {
@@ -50,11 +58,11 @@ class ContentPresenter {
 
     switch (this.#currentSortType) {
       case SortingType.TIME:
-        return filteredPoints.sort(sortPointEventsByTime)
+        return filteredPoints.sort(sortPointEventsByTime);
       case SortingType.PRICE:
         return filteredPoints.sort(sortPointEventsByPrice);
     }
-    return filteredPoints;
+    return filteredPoints.sort(sortByDay);
   }
 
   get offers() {
@@ -71,8 +79,12 @@ class ContentPresenter {
 
   createPoint() {
     this.#currentSortType = SortingType.DAY;
+    this.#filterType = FilterType.EVERYTHING;
     this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newPointPresenter.init();
+    if (this.#messageComponent) {
+      remove(this.#messageComponent);
+    }
   }
 
   #renderTripEventItem(point) {
@@ -90,8 +102,8 @@ class ContentPresenter {
   }
 
   #renderEmptyList() {
-    this.#emptyListComponent = new ListEmptyView(this.#filterType);
-    render(this.#emptyListComponent, this.#contentContainer);
+    this.#messageComponent = new ListEmptyView(this.#filterType);
+    render(this.#messageComponent, this.#contentContainer);
   }
 
   #renderSort() {
@@ -101,6 +113,12 @@ class ContentPresenter {
 
   #renderContent() {
     const points = this.pointEvents;
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     if (this.pointEvents.length === 0) {
       this.#renderEmptyList();
       return;
@@ -110,16 +128,21 @@ class ContentPresenter {
     this.#renderTripEvents(points);
   }
 
+  #renderError() {
+    this.#messageComponent = new ListEmptyView('ERROR');
+    render(this.#messageComponent, this.#contentContainer);
+  }
 
-  #clearContent({resetSortType = false} = {}) {
+  #clearContent({ resetSortType = false } = {}) {
     this.#newPointPresenter.destroy();
     this.#tripEventPresenters.forEach((presenter) => presenter.destroy());
     this.#tripEventPresenters.clear();
 
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
 
-    if (this.#noPointComponent) {
-      remove(this.#noPointComponent);
+    if (this.#messageComponent) {
+      remove(this.#messageComponent);
     }
 
     if (resetSortType) {
@@ -127,18 +150,41 @@ class ContentPresenter {
     }
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #renderLoading() {
+    render(this.#loadingComponent, this.#contentContainer);
+  }
+
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        this.#tripEventPresenters.get(update.id).setSaving();
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch (err) {
+          this.#tripEventPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(updateType, update);
+        this.#newPointPresenter.setSaving();
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+        } catch (err) {
+          this.#newPointPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(updateType, update);
+        this.#tripEventPresenters.get(update.id).setDeleting();
+        try {
+          await this.#pointsModel.deletePoint(updateType, update);
+        } catch (err) {
+          this.#tripEventPresenters.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -151,9 +197,18 @@ class ContentPresenter {
         this.#renderContent();
         break;
       case UpdateType.MAJOR:
-        this.#clearContent({resetSortType: true});
+        this.#clearContent({ resetSortType: true });
         this.#renderContent();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderContent();
+        break;
+      case UpdateType.ERROR:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderError();
     }
   };
 

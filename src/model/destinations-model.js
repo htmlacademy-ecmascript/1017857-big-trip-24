@@ -1,11 +1,27 @@
 import Observable from '../framework/observable';
-import { getDestinationsData } from '../mock/destinations-data';
+import { UpdateType } from '../constants';
 
-class DestinationsModel extends Observable{
-  #destinations = getDestinationsData();
+class DestinationsModel extends Observable {
+  #pointsApiService = null;
+  #destinations = [];
+
+  constructor(pointsApiService) {
+    super();
+    this.#pointsApiService = pointsApiService;
+  }
 
   get destinations() {
     return this.#destinations;
+  }
+
+  async init() {
+    try {
+      this.#destinations = await this.#pointsApiService.destinations;
+    } catch (err) {
+      this.#destinations = [];
+    }
+
+    this._notify(UpdateType.INIT);
   }
 
   getDestinationsById(id) {
